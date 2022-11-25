@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="jp">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ますみすサーチ</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/css/scrolling-nav.css" rel="stylesheet">
+  <!-- Bootstrap core JavaScript -->
+  <script src="/static/jquery/jquery.min.js"></script>
+  <script src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="/static/jquery-easing/jquery.easing.min.js"></script>
+</head>
+
+<body id="page-top">
+  <div class="footerFixed">
+  <!-- Footer -->
+  <%- include('../_header'); %>
+
+  <header class="bg-secondary text-white">
+    <div class="container text-center">
+      <h1>ますみすサーチ</h1>
+      <p class="lead">マストドン・ミスキー(ActivityPub Relay)発言検索</p>
+    </div>
+  </header>
+
+  <section id="search_section">
+    <div class="container">
+      <form action="/ui/search" method="GET">
+          <div class="d-flex align-items-center form-group">
+            <input type="text" class="form-control" id="q" aria-describedby="検索文字列を入力" placeholder="検索文字列を入力" size="80">
+          </div>
+          <div class="d-flex align-items-center form-group text-center">
+            <div class="col-12">
+              <input type="submit" value="検索" class="btn btn-dark" />
+            </div>
+          </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <%- include('../_footer'); %>
+</div>
+</body>
+
+</html>

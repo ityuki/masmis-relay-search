@@ -12,8 +12,19 @@ var app = express();
 // viewエンジン
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
+
+app.enable("trust proxy")
+
+// Httpヘッダー「Host」を強制的に自ドメインにする。
+// (ローカル環境だとIPアドレスとなるため（暫定対応）)
+app.use(function(req, res, next) {
+  var relayUrl = url.parse(config.relay.url);
+  req.headers['host'] = relayUrl.host;
+  next();
+});
+
 // ログレベル
-app.use(logger('dev'));
+app.use(logger('combined'));
 // パーサー
 app.use(bodyParser.json({
   type: [
@@ -31,14 +42,6 @@ app.use(bodyParser.json({
 // 静的ファイル
 app.use(express.urlencoded({ extended: false }));
 app.use("/static",express.static(path.join(__dirname, 'public/static')));
-
-// Httpヘッダー「Host」を強制的に自ドメインにする。
-// (ローカル環境だとIPアドレスとなるため（暫定対応）)
-app.use(function(req, res, next) {
-  var relayUrl = url.parse(config.relay.url);
-  req.headers['host'] = relayUrl.host;
-  next();
-});
 
 console.log("・relay")
 console.log("　host: "+config.relay.url);

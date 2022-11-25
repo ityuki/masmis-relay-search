@@ -4,7 +4,7 @@ var router = express.Router();
 //
 // Topページ
 router.get('/', function (req, res, next) {
-  res.send("under construction")
+  res.render("ui/index")
 });
 
 module.exports = router;

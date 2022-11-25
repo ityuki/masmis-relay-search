@@ -5,6 +5,9 @@ var xmlBuilder = require('xmlbuilder');
 
 var config = require('../settings');
 
+var Actor = require('../activitypub/actor');
+
+var route_inbox = require('./inbox');
 
 //
 // Topページ
@@ -61,6 +64,42 @@ router.get('/.well-known/host-meta', function(req, res, next) {
   .end({ pretty: true});
 
   res.set('Content-Type', 'application/xml').send(xml).end();
+});
+
+// Actor
+router.get('/actor', function (req, res, next) {
+
+  //
+  var actor = new Actor(config.relay);
+
+  //
+  res.set('Content-Type', 'application/activity+json')
+    .send(JSON.stringify(actor.myself(config.relay.publicKey)))
+    .end();
+});
+
+// Status
+router.get('/status', function(req, res, next) {
+
+  res.set('Content-Type', 'application/json')
+    .end();
+});
+
+// inbox
+router.post('(/||//)inbox', function (req, res, next) {
+
+  var inbox_status = route_inbox(req, res, next)
+
+  if (inbox_status){
+    return inbox_status;
+  }
+
+  res.status(202).end();
+});
+
+router.post('(/|//)outbox', function (req, res, next) {
+
+  res.status(202).end();
 });
 
 

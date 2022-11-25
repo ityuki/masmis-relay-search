@@ -31,12 +31,24 @@ module.exports = {
       password: (process.env.DB_PASS) ? process.env.DB_PASS : "postgres"
     },
     pool: {
-      min: 2,
-      max: 10
+      min: 10,
+      max: 50
     },
     migrations: {
       directory:'./migrations',
       tableName: 'knex_migrations'
     }
+  },
+  // process queue
+  queue: {
+    pool:{
+      follow: (process.env.QUEUE_POOL_FOLLOW) ? Number(process.env.QUEUE_POOL_FOLLOW): 1,
+      unfollow: (process.env.QUEUE_POOL_UNFOLLOW) ? Number(process.env.QUEUE_POOL_UNFOLLOW): 1,
+      undo: (process.env.QUEUE_POOL_UNDO) ? Number(process.env.QUEUE_POOL_UNDO): 1,
+      forward: (process.env.QUEUE_POOL_FORWARD) ? Number(process.env.QUEUE_POOL_FORWARD): 5,
+      remoteFollow: (process.env.QUEUE_POOL_REMOTE_FOLLOW) ? Number(process.env.QUEUE_POOL_REMOTE_FOLLOW): 1,
+      remoteUnFollow: (process.env.QUEUE_POOL_REMOTE_UNFOLLOW) ? Number(process.env.QUEUE_POOL_REMOTE_UNFOLLOW): 1
+    }
   }
+
 };

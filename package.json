@@ -4,7 +4,7 @@
   "description": "Nodejsで実装したActivityPub Relay and Search Server(ますみすサーチ本体)",
   "main": "./bin/run.js",
   "scripts": {
-    "build:migrate": "./node_modules/.bin/knex migrate:latest --env production",
+    "build:migrate": "./node_modules/.bin/knex migrate:latest --env production --knexfile ./src/knex_file.js",
     "start": "node ./bin/run.js"
   },
   "author": "Ituki Kirihara",

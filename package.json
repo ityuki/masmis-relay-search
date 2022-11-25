@@ -1,0 +1,30 @@
+{
+  "name": "masmis-relay-search",
+  "version": "0.0.0",
+  "description": "Nodejsで実装したActivityPub Relay and Search Server(ますみすサーチ本体)",
+  "main": "./bin/run.js",
+  "scripts": {
+    "build:migrate": "./node_modules/.bin/knex migrate:latest --env production",
+    "start": "node ./bin/run.js"
+  },
+  "author": "Ituki Kirihara",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "bull": "^3.7.0",
+    "crypto": "^1.0.1",
+    "date-utils": "^1.2.1",
+    "debug": "~2.6.9",
+    "ejs": "^3.1.8",
+    "express": "^4.16.4",
+    "express-session": "^1.17.0",
+    "http-errors": "~1.6.2",
+    "knex": "^0.21.0",
+    "lru-cache": "^5.1.1",
+    "node-uuid": "^1.4.8",
+    "pg": "^8.0.3",
+    "redis": "^3.1.1"
+  },
+  "devDependencies": {
+  }
+}

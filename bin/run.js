@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 
+var path = require('path');
+var process = require('process');
+
+require('dotenv').config({ path: path.resolve(process.cwd(), '.env') });
+if (process.env.NODE_ENV){
+  require('dotenv').config({ path: path.resolve(process.cwd(), '.env.' + process.env.NODE_ENV) });
+}
+
 var app = require('../src/app');
 var debug = require('debug')('site-status:server');
 var http = require('http');

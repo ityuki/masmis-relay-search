@@ -11,19 +11,23 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.27.2",
+    "body-parser": "^1.18.3",
     "bull": "^3.7.0",
     "crypto": "^1.0.1",
     "date-utils": "^1.2.1",
     "debug": "~2.6.9",
+    "dotenv": "^16.0.3",
     "ejs": "^3.1.8",
     "express": "^4.16.4",
     "express-session": "^1.17.0",
     "http-errors": "~1.6.2",
     "knex": "^0.21.0",
     "lru-cache": "^5.1.1",
+    "morgan": "~1.9.0",
     "node-uuid": "^1.4.8",
     "pg": "^8.0.3",
-    "redis": "^3.1.1"
+    "redis": "^3.1.1",
+    "xmlbuilder": "^12.0.0"
   },
   "devDependencies": {
   }

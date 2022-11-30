@@ -24,6 +24,7 @@ module.exports = function(job, done) {
   var boastActivity = activity.announce(client.body);
 
   console.log('start note_change queue process. keyId='+signParams['keyId'] + " activity_type=" + activity_type);
+  console.log(forwardActivity)
 
   // リクエスト元の公開鍵取得
   accountCache(signParams['keyId'],'followers')
@@ -51,16 +52,15 @@ module.exports = function(job, done) {
       return new Promise((resolve,reject)=>{
         database.transaction(async trx=>{
           // ユーザ確認
-          console.log("notes_accounts verification");
+          console.log("notes_accounts verification url=" + account['url']);
           var user = await trx('notes_accounts').select()
                           .where({
-                            domain: account['domain'],
-                            username: account['username']
+                            url: account['url']
                           });
           // ユーザ登録
           if (user.length == 0 || ((new Date()).getTime() - (new Date(user['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
             // upsert
-            var newuser = await accountRequest(signParams['keyId']);
+            var newuser = await accountRequest(account['url']);
             if (user.length == 0){
               // insert
               console.log("notes_accounts user insert");
@@ -76,14 +76,15 @@ module.exports = function(job, done) {
             }
           }
           // タグ登録
-          if (!forwardActivity.object && !forwardActivity.object.tag && forwardActivity.object.tag.length > 0){
+          if (forwardActivity.object.tag && forwardActivity.object.tag.length > 0){
             console.log("tags update");
             for(var tag of forwardActivity.object.tag){
               var tags = await trx('tags').select().where({name:tag.name});
               if (tags.length == 0){
                 await trx('tags').insert({
                   name: tag.name,
-                  url: tag.url,
+                  url: tag.href,
+                  type: tag.type,
                   data_json: compress.comp(JSON.stringify(tag))
                 })
               }
@@ -95,7 +96,6 @@ module.exports = function(job, done) {
       })
     })
     .then(function(user) {
-
       switch(activity_type){
         case "Create":
           // notesに追加
@@ -111,27 +111,47 @@ module.exports = function(job, done) {
               application_name: null,
               note_created_at: forwardActivity.object.published
             })
-            .returning('id')
-            .then((note_id)=>{
-              if (!forwardActivity.object && !forwardActivity.object.tag && forwardActivity.object.tag.length > 0){
+            .returning('*')
+            .then((note)=>{
+              if (forwardActivity.object.tag && forwardActivity.object.tag.length > 0){
                 database.transaction(async trx=>{
                   for(var tag of forwardActivity.object.tag){
                     var id = (await trx('tags').select(["id"]).where({name:tag.name}))[0]['id'];
-                    trx('tagh_note').insert({
+                    await trx('tag_note').insert({
                       tag_id: id,
-                      note_id: note_id
+                      note_id: note[0]['id']
                     })
                   }  
                 })
               }
               return Promise.resolve(user);
             })
+            .catch((e)=>{Promise.reject(e);})
           }else{
             return Promise.resolve(user);
           }
           break;
-        case "Update":
         case "Delete":
+          // 存在したらdelete
+          {
+            var url = forwardActivity.object.id
+            database.transaction(async trx=>{
+              var note = await trx("notes").select().where({url:url})
+              if (note.length > 0){
+                // タグ関連付け削除
+                await trx('tag_note').delete().where({note_id: note[0]['id'] })
+                // ノート削除
+                await trx('notes').delete().where({id: note[0]['id']})
+                // ユーザは面倒なので削除しない
+              }
+            })
+            .then(()=>{
+              return Promise.resolve(user);
+            })
+            .catch((e)=>{Promise.reject(e);})
+          }
+          break;
+        case "Update":
         case "Announce":
         case "Move":
           return Promise.resolve(user);
@@ -177,6 +197,8 @@ var accountRequest = async function(keyId) {
           
           'display_name': (res.data.name)?res.data.name:'',
           'bot': (!res.data.bot || res.data.bot == false) ? false : true,
+
+          'url': keyId
         }
       ];
     })

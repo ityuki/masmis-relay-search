@@ -80,6 +80,18 @@ module.exports = function(req, res, next){
           body: req.rawBody
         }
       });
+
+      Worker.noteChangeQueue.add({
+        activity:{
+          type: activity.type
+        },
+        client: {
+          method: req.method,
+          path: req.path,
+          headers: req.headers,
+          body: req.rawBody
+        }
+      });
       break;
     
     case "Accept":

@@ -151,6 +151,7 @@ module.exports = function(job, done) {
     })
     .then(function(account) {
       // 処理終了
+      console.log('end forward queue process. keyId='+signParams['keyId']);
       return done();
     })
     .catch(function(err) {

@@ -46,6 +46,7 @@ module.exports = {
       unfollow: (process.env.QUEUE_POOL_UNFOLLOW) ? Number(process.env.QUEUE_POOL_UNFOLLOW): 1,
       undo: (process.env.QUEUE_POOL_UNDO) ? Number(process.env.QUEUE_POOL_UNDO): 1,
       forward: (process.env.QUEUE_POOL_FORWARD) ? Number(process.env.QUEUE_POOL_FORWARD): 5,
+      noteChange: (process.env.QUEUE_POOL_NOTE_CHANGE) ? Number(process.env.QUEUE_POOL_NOTE_CHANGE): 1,
       remoteFollow: (process.env.QUEUE_POOL_REMOTE_FOLLOW) ? Number(process.env.QUEUE_POOL_REMOTE_FOLLOW): 1,
       remoteUnFollow: (process.env.QUEUE_POOL_REMOTE_UNFOLLOW) ? Number(process.env.QUEUE_POOL_REMOTE_UNFOLLOW): 1
     }

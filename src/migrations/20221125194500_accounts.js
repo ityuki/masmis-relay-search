@@ -35,7 +35,8 @@ exports.up = function(knex, Promise) {
           table.timestamp('created_at').defaultTo(knex.fn.now());
           table.timestamp('updated_at').defaultTo(knex.fn.now());
 
-          table.index(['domain','username'], 'accounts_idx_domain_username');
+          table.index(['domain','account_type','username'], 'accounts_idx_domain_account_type_username');
+          table.index(['account_type','account_status'], 'accounts_idx_account_type_account_status');
           table.index(['url'], 'accounts_idx_url');
         });
       }else{

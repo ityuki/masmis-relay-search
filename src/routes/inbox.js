@@ -51,7 +51,7 @@ module.exports = function(req, res, next){
     case "Undo":
       console.log('queuing unfollow request. [actor:'+activity.actor+']');
 
-      // ここで良いのか……？
+      if ()
       // // キューに格納
       Worker.unfollowQueue.add({
         client: {
@@ -71,7 +71,6 @@ module.exports = function(req, res, next){
     case "Move":
       console.log('queuing forward request. [actor:'+activity.actor+']');
 
-      /*
       // // キューに格納
       Worker.forwardQueue.add({
         client: {
@@ -81,7 +80,6 @@ module.exports = function(req, res, next){
           body: req.rawBody
         }
       });
-      */
       break;
     
     case "Accept":

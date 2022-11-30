@@ -16,9 +16,9 @@ var remoteUnFollow = new Queue('remoteUnFollow', redis_config);
 // プロセス設定
 follow.process(require('./queues/follow'));
 unfollow.process(require('./queues/unfollow'));
+undo.process(require('./queues/undo'));
 forward.process(config.queue.pool, require('./queues/forward'));
 /*
-undo.process(require('./queues/undo'));
 remoteFollow.process(require('./queues/remote_follow'));
 remoteUnFollow.process(require('./queues/remote_unfollow'));
 */

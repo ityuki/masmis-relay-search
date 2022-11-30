@@ -51,9 +51,9 @@ module.exports = function(req, res, next){
     case "Undo":
       console.log('queuing unfollow request. [actor:'+activity.actor+']');
 
-      if ()
       // // キューに格納
-      Worker.unfollowQueue.add({
+      //Worker.unfollowQueue.add({
+      Worker.undoQueue.add({
         client: {
           method: req.method,
           path: req.path,

@@ -6,6 +6,7 @@ exports.up = function(knex, Promise) {
         table.increments('id').primary();
         table.text('name');
         table.text('url');
+        table.text('type');
 
         table.binary('data_json');
 

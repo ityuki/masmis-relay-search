@@ -49,6 +49,12 @@ module.exports = {
       remoteFollow: (process.env.QUEUE_POOL_REMOTE_FOLLOW) ? Number(process.env.QUEUE_POOL_REMOTE_FOLLOW): 1,
       remoteUnFollow: (process.env.QUEUE_POOL_REMOTE_UNFOLLOW) ? Number(process.env.QUEUE_POOL_REMOTE_UNFOLLOW): 1
     }
-  }
+  },
 
+  // request cache
+  cache: {
+      size:  (process.env.CACHE_SIZE) ? Number(process.env.CACHE_SIZE): 1024,
+      limit: ((process.env.CACHE_TTL) ? Number(process.env.CACHE_TTL): 10 ) * 60 * 1000
+    },
+  
 };

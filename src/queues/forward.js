@@ -26,7 +26,7 @@ module.exports = function(job, done) {
   console.log('start forward queue process. keyId='+signParams['keyId']);
 
   // リクエスト元の公開鍵取得
-  accountCache(signParams['keyId'])
+  accountCache(signParams['keyId'],'followers')
     .then(function(account) {
         
       // Signatureの正当性チェック
@@ -50,10 +50,9 @@ module.exports = function(job, done) {
       database('accounts')
       .select([
         'id',
-        'account_id',
         'domain',
-        'create_at',
-        'update_at',
+        'created_at',
+        'updated_at',
         'account_status',
         'username',
         'uri',

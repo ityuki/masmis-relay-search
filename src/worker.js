@@ -14,10 +14,10 @@ var remoteFollow = new Queue('remoteFollow', redis_config);
 var remoteUnFollow = new Queue('remoteUnFollow', redis_config);
 
 // プロセス設定
-follow.process(require('./queues/follow'));
-unfollow.process(require('./queues/unfollow'));
-undo.process(require('./queues/undo'));
-forward.process(config.queue.pool, require('./queues/forward'));
+follow.process(config.queue.pool.follow, require('./queues/follow'));
+unfollow.process(config.queue.pool.unfollow, require('./queues/unfollow'));
+undo.process(config.queue.pool.undo, require('./queues/undo'));
+forward.process(config.queue.pool.forward, require('./queues/forward'));
 /*
 remoteFollow.process(require('./queues/remote_follow'));
 remoteUnFollow.process(require('./queues/remote_unfollow'));

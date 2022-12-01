@@ -3,6 +3,10 @@ masmis-search
 
 * https://github.com/gittrname/activitypub-relay を参考に作っています。
 
+## 注意
+
+* masterで弄りまくっているので、fork/cloneする場合はお気をつけください。
+
 ## 絶対に必要な初期設定
 
 * 公開鍵暗号用に公開鍵と秘密鍵を作成

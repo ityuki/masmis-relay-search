@@ -99,7 +99,7 @@ module.exports = function(job, done) {
       switch(activity_type){
         case "Create":
           // notesに追加
-          if (forwardActivity.object.type == "Note" &&  forwardActivity.object.content != ""){
+          if (forwardActivity.object.type == "Note"){
             var nonhtml_content = forwardActivity.object.content.replace(/\<.*?\>/g,'')
             var nohtml_summary = forwardActivity.object.summary
             if (!nohtml_summary){

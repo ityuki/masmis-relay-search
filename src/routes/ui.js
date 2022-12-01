@@ -53,7 +53,6 @@ router.get('/search', function (req, res, next) {
   }
 
   db.then(rows=>{
-    console.log(rows)
     res.render("ui/search",{msg:"検索結果上位100件です",rows:rows,query:query,Moment:Moment})
   })
 });

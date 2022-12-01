@@ -11,6 +11,30 @@ router.get('/', function (req, res, next) {
   res.render("ui/index")
 });
 
+// 利用規約
+router.get('/tos', function (req, res, next) {
+  res.render("ui/tos")
+});
+
+// 検索の使い方
+router.get('/search_help', function (req, res, next) {
+  res.render("ui/search_help")
+});
+
+// リレー情報
+router.get('/relay', function (req, res, next) {
+  database.select(
+    'domain',
+    'account_status'
+  )
+  .from('accounts')
+  .where({account_type:'relay'})
+  .orderBy('domain','asc')
+  .then((rows)=>{
+    res.render("ui/relay",{rows:rows})
+  })
+});
+
 //
 // search
 router.get('/search', function (req, res, next) {

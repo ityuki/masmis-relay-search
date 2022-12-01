@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="jp">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ますみすサーチ</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/css/scrolling-nav.css" rel="stylesheet">
+  <!-- Bootstrap core JavaScript -->
+  <script src="/static/jquery/jquery.min.js"></script>
+  <script src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="/static/jquery-easing/jquery.easing.min.js"></script>
+</head>
+
+<body id="page-top">
+  <div class="footerFixed">
+  <!-- Footer -->
+  <%- include('../_header'); %>
+
+  <header class="bg-secondary text-white">
+    <div class="container text-center">
+      <h1>ますみすサーチ 検索の使い方</h1>
+    </div>
+  </header>
+
+  <section id="search_result">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <h2>使い方</h2>
+          <p></p>
+          <p>検索したい文字列を入力して、検索ボタンを押します。</p>
+          <p>複数単語を、全角または半角スペースで区切って検索すると、AND条件(両方存在する場合のみ表示)となります。</p>
+          <p>OR条件(片方存在する場合に表示)したい場合は、「 OR 」で単語を区切ってください。</p>
+          <p>スペース文字を含む文字列を検索する場合は、単語全体を「"」で囲んでください。</p>
+          <p>除去したい条件は、単語の前に「-」を書いてください。</p>
+          <p>現在は残念ながら、大文字・小文字、全角・半角は区別されます。</p>
+          <p></p>
+          <h3>詳細検索</h3>
+          <p></p>
+          <p>以下のオプションをつけて検索することが出来ます。</p>
+          <div class="table-responsive">
+            <table id="instance-table" class="table table-striped table-sm" style="width: 100%">
+              <thead>
+                <tr>
+                  <th>オプション</th>
+                  <th>説明</th>
+                  <th>書き方（例）</th>
+                  <th>例の説明</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>account.domain:ドメイン名</td>
+                  <td>特定のドメインに限定して検索する</td>
+                  <td>account.domain:otasky.ja-jp.org</td>
+                  <td>otasky.ja-jp.orgドメインの内容に限定して検索します</td>
+                </tr>
+                <tr>
+                  <td>account.domain.prefix:ドメイン名</td>
+                  <td>特定のドメイン(前方一致)に限定して検索する</td>
+                  <td>account.domain.prefix:otasky.ja-jp.org</td>
+                  <td>otasky.ja-jp.orgで始まるドメインの内容に限定して検索します</td>
+                </tr>
+                <tr>
+                  <td>account.username:ユーザID</td>
+                  <td>特定のユーザIDに限定して検索する</td>
+                  <td>account.username:ityuki</td>
+                  <td>ityukiというユーザIDの内容に限定して検索します</td>
+                </tr>
+                <tr>
+                  <td>account.username.prefix:ユーザID</td>
+                  <td>特定のユーザID(前方一致)に限定して検索する</td>
+                  <td>account.username.prefix:ityuki</td>
+                  <td>ityukiで始まるユーザIDの内容に限定して検索します</td>
+                </tr>
+                <tr>
+                  <td>account.display_name:ユーザ名</td>
+                  <td>特定のユーザIDに限定して検索する</td>
+                  <td>account.display_name:いつき</td>
+                  <td>いつきというユーザ名の内容に限定して検索します</td>
+                </tr>
+                <tr>
+                  <td>account.display_name.prefix:ユーザ</td>
+                  <td>特定のユーザ名(前方一致)に限定して検索する</td>
+                  <td>account.display_name.prefix:いつき</td>
+                  <td>いつきで始まるユーザIDの内容に限定して検索します</td>
+                </tr>
+                <tr>
+                  <td>account.bot:true or false</td>
+                  <td>BOTアカウントに限定(true) or BOTアカウントを除く(false)内容を検索します</td>
+                  <td>account.bot:false</td>
+                  <td>BOTでない発言内容に限定して検索します</td>
+                </tr>
+                <tr>
+                  <td>sensitive:true or false</td>
+                  <td>センシティブ発言に限定(true) or センシティブ発言を除く(false)内容を検索します</td>
+                  <td>sensitive:true</td>
+                  <td>センシティブな発言内容に限定して検索します</td>
+                </tr>
+                <tr>
+                  <td>has_media:true or false</td>
+                  <td>メディアが添付された発言に限定(true) or メディアが添付された発言を除く(false)内容を検索します</td>
+                  <td>has_media:true</td>
+                  <td>メディアが添付された発言に限定して検索します</td>
+                </tr>
+                <tr>
+                  <td>start_at:日時</td>
+                  <td>指定された時間より後に投稿された発言に限定して検索します</td>
+                  <td>start_at:2022-12-01</td>
+                  <td>2022-12-01以降に投稿された発言に限定して検索します</td>
+                </tr>
+                <tr>
+                  <td>end_at:日時</td>
+                  <td>指定された時間より前に投稿された発言に限定して検索します</td>
+                  <td>end_at:2022-12-02</td>
+                  <td>2022-12-02以前に投稿された発言に限定して検索します</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <%- include('../_footer'); %>
+</div>
+</body>
+
+</html>

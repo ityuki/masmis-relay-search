@@ -44,5 +44,24 @@ DB_PASS=DBパスワード
 
 * src/views/ 以下をいじってください
 
+## 最初の設定
+
+* モジュールのインストール
+```sh
+npm install
+```
+
+* DB作ります
+```sh
+npm run build:migrate
+```
+
+* 実行します
+```sh
+npm start
+```
+
+* port 3000で何か立ち上がります
+
 
 

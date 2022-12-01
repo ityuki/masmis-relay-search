@@ -24,7 +24,7 @@ module.exports = function(job, done) {
   var boastActivity = activity.announce(client.body);
 
   console.log('start note_change queue process. keyId='+signParams['keyId'] + " activity_type=" + activity_type);
-  console.log(forwardActivity)
+  //console.log(forwardActivity)
 
   // リクエスト元の公開鍵取得
   accountCache(signParams['keyId'],'followers')
@@ -101,12 +101,18 @@ module.exports = function(job, done) {
           // notesに追加
           if (forwardActivity.object.type == "Note" &&  forwardActivity.object.content != ""){
             var nonhtml_content = forwardActivity.object.content.replace(/\<.*?\>/g,'')
+            var nohtml_summary = forwardActivity.object.summary
+            if (!nohtml_summary){
+              nohtml_summary = ""
+            }else{
+              nohtml_summary = nohtml_summary.replace(/\<.*?\>/g,'') + " "
+            }
             database('notes').insert({
               account_id: user.id,
               url: forwardActivity.object.id,
-              note: nonhtml_content,
+              note: nohtml_summary + nonhtml_content,
               sensitive: forwardActivity.object.sensitive,
-              media_attachments: (!forwardActivity.object.attachment && forwardActivity.object.attachment.length > 0)?true:false,
+              media_attachments: (forwardActivity.object.attachment && forwardActivity.object.attachment.length > 0)?true:false,
               language: null,
               application_name: null,
               note_created_at: forwardActivity.object.published

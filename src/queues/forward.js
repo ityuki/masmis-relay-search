@@ -6,6 +6,8 @@ var accountCache = require('../cache/account');
 var database = require('../database');
 var config = require('../settings');
 
+var Moment = require('moment')
+
 //
 //
 module.exports = function(job, done) {
@@ -64,6 +66,11 @@ module.exports = function(job, done) {
       .where({
         'account_type': 'relay',
         'account_status': 1
+      })
+      .orWhere(function () {
+        this.where( 'account_type', 'relay' );
+        this.where( 'account_status', 0 );
+        this.where( 'updated_at', '<', Moment().subtract(1,'hours').toDate() );
       }).then(rows=>{
         for(idx in rows) {
 
@@ -71,43 +78,73 @@ module.exports = function(job, done) {
           console.log('Forward Activity.'
           +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
 
-          subscriptionMessage
-            .sendActivity(rows[idx]['inbox_url'], forwardActivity)
-            .then(function(res) {
 
-              // 配信成功を結果ログに記録
-            })
-            .catch(function(err) {
-              console.log(err.message);
+          (function(rows,idx){
 
-              // 配信失敗を結果ログに記録
-
-              // 配送不能ドメインのステータスを変更
-              if (err.code == 'ETIMEDOUT') {
-                // タイムアウトはビジー状態として処理
-                return;
-              } else if (err.code == 'ERR_BAD_RESPONSE'
-                  && err.response.status >= 500) {
-                // 一時的な配送エラーとして処理
-                return;
-              } else {
-                // 失敗
+            subscriptionMessage
+              .sendActivity(rows[idx]['inbox_url'], forwardActivity)
+              .then(function(res) {
+  
+                // 配信成功を結果ログに記録
+                console.log('success Forward Activity.'
+                +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
+      
+                // 成功
                 // トランザクション外で実行
-                database('accounts')
-                .where({
-                  'inbox_url': err.config.url
-                })
-                .update({
-                  'account_status': 0
-                }).catch(function(err) {
-                  console.log(err.message);
-                });
-              }
-            });
-          }
+                if (rows[idx]['account_status'] != 1){
+                  database('accounts')
+                  .where({
+                    'inbox_url': rows[idx]['inbox_url']
+                  })
+                  .update({
+                    'account_status': 1,
+                    'updated_at': (new Date())
+                  }).then((rows2)=>{
+                    console.log('update server status. ' +rows[idx]['inbox_url']);  
+                  }).catch(function(err) {
+                    console.log(err.message);
+                  });
+                }
+              })
+              .catch(function(err) {
+                console.log(err.message);
+  
+                // 配信失敗を結果ログに記録
+                console.log('error Forward Activity.'
+                +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
+  
+                // 配送不能ドメインのステータスを変更
+                if (err.code == 'ETIMEDOUT') {
+                  // タイムアウトはビジー状態として処理
+                  return;
+                } else if (err.code == 'ERR_BAD_RESPONSE'
+                    && err.response.status >= 500) {
+                  // 一時的な配送エラーとして処理
+                  return;
+                } else {
+                  // 失敗
+                  // トランザクション外で実行
+                  database('accounts')
+                  .where({
+                    'inbox_url': rows[idx]['inbox_url']
+                  })
+                  .update({
+                    'account_status': 0,
+                    'updated_at': (new Date())
+                  }).catch(function(err) {
+                    console.log(err.message);
+                  });
+                }
+              });
+  
+          })(rows,idx);
+        }
 
-          return Promise.resolve(account);
-        });
+        return Promise.resolve(account);
+      })
+      .catch((e)=>{
+        return Promise.reject(e)
+      })
 
       // 
       return Promise.resolve(account);
@@ -155,6 +192,7 @@ module.exports = function(job, done) {
       return done();
     })
     .catch(function(err) {
+      console.log(err)
       done(err);
     });
 };

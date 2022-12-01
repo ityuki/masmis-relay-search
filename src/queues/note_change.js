@@ -63,7 +63,7 @@ module.exports = function(job, done) {
           if (user.length == 0 || 
             !user[0]['account_id'] ||
             !user[0]['display_name'] ||
-            ((new Date()).getTime() - (new Date(user['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
+            ((new Date()).getTime() - (new Date(user[0]['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
             // upsert
             var newuser = await accountRequest(account['url']);
             newuser[0]['updated_at'] = new Date()
@@ -79,6 +79,7 @@ module.exports = function(job, done) {
               .where({
                 id: user[0]['id']
               });
+              newuser[0]['id'] = user[0]['id']
               user = newuser
             }
           }
@@ -176,6 +177,7 @@ module.exports = function(job, done) {
       return done();
     })
     .catch(function(err) {
+      console.log(err)
       done(err);
     });
 };

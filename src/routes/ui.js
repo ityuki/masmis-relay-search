@@ -5,6 +5,24 @@ var database = require('../database');
 var parser = require('../search/data_parser')
 var Moment = require('moment')
 
+function escapeHTML( text )
+{
+    var replacement = function( ch )
+    {
+        var characterReference = {
+            '"':'&quot;',
+            '&':'&amp;',
+            '\'':'&#39;',
+            '<':'&lt;',
+            '>':'&gt;'
+        };
+
+        return characterReference[ ch ];
+    }
+
+    return text.replace( /["&'<>]/g, replacement );
+}
+
 //
 // Topページ
 router.get('/', function (req, res, next) {
@@ -77,7 +95,7 @@ router.get('/search', function (req, res, next) {
   }
 
   db.then(rows=>{
-    res.render("ui/search",{msg:"検索結果上位100件です",rows:rows,query:query,Moment:Moment})
+    res.render("ui/search",{msg:"検索結果上位100件です",rows:rows,query:query,Moment:Moment,escapeHTML:escapeHTML})
   })
 });
 

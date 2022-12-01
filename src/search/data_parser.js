@@ -109,31 +109,31 @@ perser.prototype.build_where = function(){
       }
       switch(sym){
         case 'account.domain':
-          where_str += where_str_next + " accounts.domain " + (!is_not? "= ": "!= ") + "?"
+          where_str += where_str_next + " notes_accounts.domain " + (!is_not? "= ": "!= ") + "?"
           where_param.push(nextsym)
           break;
         case 'account.domain.prefix':
-          where_str += where_str_next + " accounts.domain " + (!is_not? "": "NOT ") + "like ?"
+          where_str += where_str_next + " notes_accounts.domain " + (!is_not? "": "NOT ") + "like ?"
           where_param.push(this.like_escape(nextsym) + "%")
           break;
         case 'account.username':
-          where_str += where_str_next + " accounts.username " + (!is_not? "= ": "!= ") + "?"
+          where_str += where_str_next + " notes_accounts.username " + (!is_not? "= ": "!= ") + "?"
           where_param.push(nextsym)
           break;
         case 'account.username.prefix':
-          where_str += where_str_next + " accounts.username " + (!is_not? "": "NOT ") + "like ?"
+          where_str += where_str_next + " notes_accounts.username " + (!is_not? "": "NOT ") + "like ?"
           where_param.push(this.like_escape(nextsym) + "%")
           break;
         case 'account.display_name':
-          where_str += where_str_next + " accounts.display_name " + (!is_not? "= ": "!= ") + "?"
+          where_str += where_str_next + " notes_accounts.display_name " + (!is_not? "= ": "!= ") + "?"
           where_param.push(nextsym)
           break;
         case 'account.display_name.prefix':
-          where_str += where_str_next + " accounts.display_name " + (!is_not? "": "NOT ") + "like ?"
+          where_str += where_str_next + " notes_accounts.display_name " + (!is_not? "": "NOT ") + "like ?"
           where_param.push(this.like_escape(nextsym) + "%")
           break;
         case 'account.bot':
-          where_str += where_str_next + " accounts.bot " + (!is_not? "= ": "!= ") + "?"
+          where_str += where_str_next + " notes_accounts.bot " + (!is_not? "= ": "!= ") + "?"
           where_param.push(this.param_boolean(nextsym))
           break;
         case 'tag':

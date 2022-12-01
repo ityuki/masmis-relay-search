@@ -69,7 +69,8 @@ router.get('/search', function (req, res, next) {
   if (sql.search_tag){
     db = database.select(
       'notes_accounts.display_name',
-      'notes_accounts.url',
+      'notes_accounts.url as account_url',
+      'notes_accounts.account_id',
       'notes.url',
       'notes.note',
       'notes.note_created_at'
@@ -84,6 +85,7 @@ router.get('/search', function (req, res, next) {
     db = database.select(
       'notes_accounts.display_name',
       'notes_accounts.url as account_url',
+      'notes_accounts.account_id',
       'notes.url',
       'notes.note',
       'notes.note_created_at'

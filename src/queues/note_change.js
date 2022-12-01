@@ -7,6 +7,7 @@ var compress = require('../utils/compress');
 var accountCache = require('../cache/account');
 var database = require('../database');
 var config = require('../settings');
+const { redis } = require('../settings');
 
 //
 //
@@ -58,9 +59,14 @@ module.exports = function(job, done) {
                             url: account['url']
                           });
           // ユーザ登録
-          if (user.length == 0 || ((new Date()).getTime() - (new Date(user['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
+          //if (user.length == 0 || ((new Date()).getTime() - (new Date(user['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
+          if (user.length == 0 || 
+            !user[0]['account_id'] ||
+            !user[0]['display_name'] ||
+            ((new Date()).getTime() - (new Date(user['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
             // upsert
             var newuser = await accountRequest(account['url']);
+            newuser[0]['updated_at'] = new Date()
             if (user.length == 0){
               // insert
               console.log("notes_accounts user insert");
@@ -68,11 +74,12 @@ module.exports = function(job, done) {
             }else{
               // update
               console.log("notes_accounts user update");
-              user = await trx('notes_accounts')
-              .update(newuser)
+              var r = await trx('notes_accounts')
+              .update(newuser[0],Object.keys(newuser[0]))
               .where({
                 id: user[0]['id']
-              })
+              });
+              user = newuser
             }
           }
           // タグ登録
@@ -203,6 +210,8 @@ var accountRequest = async function(keyId) {
           
           'display_name': (res.data.name)?res.data.name:'',
           'bot': (!res.data.bot || res.data.bot == false) ? false : true,
+
+          'account_id': res.data.id,
 
           'url': keyId
         }

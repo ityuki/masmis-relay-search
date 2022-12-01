@@ -28,7 +28,8 @@ module.exports = {
       port:     (process.env.DB_PORT) ? Number(process.env.DB_PORT) : 5432,
       database: (process.env.DB_NAME) ? process.env.DB_NAME : "postgres",
       user:     (process.env.DB_USER) ? process.env.DB_USER : "postgres",
-      password: (process.env.DB_PASS) ? process.env.DB_PASS : "postgres"
+      password: (process.env.DB_PASS) ? process.env.DB_PASS : "postgres",
+      requestTimeout: 2 * 1000 // 2sec
     },
     pool: {
       min: 10,

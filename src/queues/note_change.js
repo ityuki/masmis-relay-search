@@ -108,7 +108,7 @@ module.exports = function(job, done) {
               nohtml_summary = nohtml_summary.replace(/\<.*?\>/g,'') + " "
             }
             database('notes').insert({
-              account_id: user.id,
+              account_id: user[0]['id'],
               url: forwardActivity.object.id,
               note: nohtml_summary + nonhtml_content,
               sensitive: forwardActivity.object.sensitive,

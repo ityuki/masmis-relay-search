@@ -29,7 +29,7 @@
   <header class="bg-secondary text-white">
     <div class="container text-center">
       <h1>ますみすサーチ</h1>
-      <p class="lead">マストドン・ミスキー(ActivityPub Relay)発言検索</p>
+      <p class="lead"><%= msg %></p>
     </div>
   </header>
 
@@ -37,7 +37,7 @@
     <div class="container">
       <form action="/ui/search" method="GET">
           <div class="d-flex align-items-center form-group">
-            <input type="text" class="form-control" id="q" name="q" aria-describedby="検索文字列を入力" placeholder="検索文字列を入力" size="80">
+            <input type="text" class="form-control" id="q" name="q" aria-describedby="検索文字列を入力" placeholder="検索文字列を入力" size="80" value="<%= query %>">
           </div>
           <div class="d-flex align-items-center form-group text-center">
             <div class="col-12">
@@ -45,6 +45,39 @@
             </div>
           </div>
       </form>
+    </div>
+  </section>
+
+  <section id="search_result">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <h2>検索結果一覧</h2>
+
+          <div class="table-responsive">
+            <table id="instance-table" class="table table-striped table-sm" style="width: 100%">
+              <thead>
+                <tr>
+                  <th>発言者</th>
+                  <th>発言内容</th>
+                  <th>投稿日時</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% for (var row of rows) { %>
+                  <% var m = (Moment(row['note_created_at'])); %>
+                  <% m.utcOffset('+09:00') %>
+                  <tr>
+                    <td><a href="<%= row['account_url'] %>" target="_blank"><%= row['display_name'] %></a></td>
+                    <td><a href="<%= row['url'] %>" target="_blank"><%= row['note'] %></a></td>
+                    <td><%= m.format('YYYY-MM-DD HH:mm:ss') %> JST</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

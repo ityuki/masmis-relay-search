@@ -85,6 +85,7 @@ perser.prototype.build_where = function(){
       case "-": is_not = true; sym = this.getsym(); break
       case "OR": is_or = true; sym = this.getsym(); break
       case "AND": is_or = false; sym = this.getsym(); break
+      default: is_not = false;is_or = false;
     }
     if (where_str != ""){
       if (is_or){

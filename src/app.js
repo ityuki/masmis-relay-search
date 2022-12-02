@@ -63,6 +63,9 @@ app.use('/', require('./routes/web_service'));
 // ui
 app.use('/ui', require('./routes/ui'));
 
+// search
+app.use('/search', require('./routes/search'));
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

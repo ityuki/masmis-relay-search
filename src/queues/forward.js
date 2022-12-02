@@ -75,8 +75,8 @@ module.exports = function(job, done) {
         for(idx in rows) {
 
           // 単純フォーワード
-          console.log('Forward Activity.'
-          +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
+          //console.log('Forward Activity.'
+          //+' form='+account['uri']+' to='+rows[idx]['inbox_url']);
 
 
           (function(rows,idx){
@@ -86,8 +86,8 @@ module.exports = function(job, done) {
               .then(function(res) {
   
                 // 配信成功を結果ログに記録
-                console.log('success Forward Activity.'
-                +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
+                //console.log('success Forward Activity.'
+                //+' form='+account['uri']+' to='+rows[idx]['inbox_url']);
       
                 // 成功
                 // トランザクション外で実行

@@ -80,13 +80,19 @@ perser.prototype.build_where = function(){
   var is_or = false
   var search_tag = false;
   while(sym && sym != null){
-    switch(sym){
-      case "+": is_not = false; sym = this.getsym(); break;
-      case "-": is_not = true; sym = this.getsym(); break
-      case "OR": is_or = true; sym = this.getsym(); break
-      case "AND": is_or = false; sym = this.getsym(); break
-      default: is_not = false;is_or = false;
+    is_not = false;
+    is_or = false;
+    var opt_loop = true;
+    while(opt_loop && sym && sym != null){
+      switch(sym){
+        case "+": is_not = false; sym = this.getsym(); break;
+        case "-": is_not = true; sym = this.getsym(); break
+        case "OR": is_or = true; sym = this.getsym(); break
+        case "AND": is_or = false; sym = this.getsym(); break
+        default: opt_loop = false;
+      }
     }
+    if (!sym && sym == null) break;
     if (where_str != ""){
       if (is_or){
         where_str_next = " OR "
@@ -106,7 +112,7 @@ perser.prototype.build_where = function(){
         where_str += where_str_next + " notes.note " + (is_not? "NOT ": "") + "like ?"
         where_param.push("%" + this.like_escape(sym) + ":" + "%") 
         sym = nextsym   
-        break;
+        continue;
       }
       switch(sym){
         case 'account.domain':

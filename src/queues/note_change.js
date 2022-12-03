@@ -108,39 +108,50 @@ module.exports = function(job, done) {
         case "Create":
           // notesに追加
           if (forwardActivity.object.type == "Note"){
-            var nonhtml_content = forwardActivity.object.content.replace(/\<br\>/g,"\n").replace(/\<.*?\>/g,'')
-            var nohtml_summary = forwardActivity.object.summary
-            if (!nohtml_summary){
-              nohtml_summary = ""
-            }else{
-              nohtml_summary = nohtml_summary.replace(/\<.*?\>/g,'') + " "
-            }
-            database('notes').insert({
-              account_id: user[0]['id'],
-              url: forwardActivity.object.id,
-              note: nohtml_summary + nonhtml_content,
-              sensitive: forwardActivity.object.sensitive,
-              media_attachments: (forwardActivity.object.attachment && forwardActivity.object.attachment.length > 0)?true:false,
-              language: null,
-              application_name: null,
-              note_created_at: forwardActivity.object.published
-            })
-            .returning('*')
-            .then((note)=>{
-              if (forwardActivity.object.tag && forwardActivity.object.tag.length > 0){
-                database.transaction(async trx=>{
-                  for(var tag of forwardActivity.object.tag){
-                    var id = (await trx('tags').select(["id"]).where({name:tag.name}))[0]['id'];
-                    await trx('tag_note').insert({
-                      tag_id: id,
-                      note_id: note[0]['id']
-                    })
-                  }  
-                })
+            // public messageに限定
+            var public_message = false;
+            for(var to of forwardActivity.object.to){
+              if (to == 'https://www.w3.org/ns/activitystreams#Public'){
+                public_message = true;
               }
+            }
+            if (public_message){
+              var nonhtml_content = forwardActivity.object.content.replace(/\<br\>/g,"\n").replace(/\<.*?\>/g,'')
+              var nohtml_summary = forwardActivity.object.summary
+              if (!nohtml_summary){
+                nohtml_summary = ""
+              }else{
+                nohtml_summary = nohtml_summary.replace(/\<.*?\>/g,'') + " "
+              }
+              database('notes').insert({
+                account_id: user[0]['id'],
+                url: forwardActivity.object.id,
+                note: nohtml_summary + nonhtml_content,
+                sensitive: forwardActivity.object.sensitive,
+                media_attachments: (forwardActivity.object.attachment && forwardActivity.object.attachment.length > 0)?true:false,
+                language: null,
+                application_name: null,
+                note_created_at: forwardActivity.object.published
+              })
+              .returning('*')
+              .then((note)=>{
+                if (forwardActivity.object.tag && forwardActivity.object.tag.length > 0){
+                  database.transaction(async trx=>{
+                    for(var tag of forwardActivity.object.tag){
+                      var id = (await trx('tags').select(["id"]).where({name:tag.name}))[0]['id'];
+                      await trx('tag_note').insert({
+                        tag_id: id,
+                        note_id: note[0]['id']
+                      })
+                    }  
+                  })
+                }
+                return Promise.resolve(user);
+              })
+              .catch((e)=>{Promise.reject(e);})  
+            }else{
               return Promise.resolve(user);
-            })
-            .catch((e)=>{Promise.reject(e);})
+            }
           }else{
             return Promise.resolve(user);
           }

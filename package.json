@@ -12,7 +12,7 @@
   "dependencies": {
     "axios": "^0.27.2",
     "body-parser": "^1.18.3",
-    "bull": "^3.7.0",
+    "bull": "^4.10.2",
     "crypto": "^1.0.1",
     "date-utils": "^1.2.1",
     "debug": "~2.6.9",
@@ -27,7 +27,7 @@
     "moment": "^2.29.4",
     "node-uuid": "^1.4.8",
     "pg": "^8.0.3",
-    "redis": "^3.1.1",
+    "redis": "^4.5.1",
     "xmlbuilder": "^12.0.0"
   },
   "devDependencies": {

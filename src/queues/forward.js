@@ -3,6 +3,7 @@ var SubscriptionMessage = require('../activitypub/subscription_message');
 var Signature = require('../utils/signature');
 
 var accountCache = require('../cache/account');
+var accountStatus = require('../cache/relay_status');
 var database = require('../database');
 var config = require('../settings');
 
@@ -71,7 +72,7 @@ module.exports = function(job, done) {
         this.where( 'account_type', 'relay' );
         this.where( 'account_status', 0 );
         this.where( 'updated_at', '<', Moment().subtract(1,'hours').toDate() );
-      }).then(rows=>{
+      }).then(async (rows)=>{
         for(idx in rows) {
 
           // 単純フォーワード
@@ -79,7 +80,57 @@ module.exports = function(job, done) {
           //+' form='+account['uri']+' to='+rows[idx]['inbox_url']);
 
 
-          (function(rows,idx){
+          await (async function(rows,idx){
+
+            var stat = await accountStatus.getStatus(rows[idx]['id'])
+            if (stat && stat.last_status == false && rows[idx]['account_status'] == 1){
+              // relayは許可してるが、直前は一時エラーで失敗してる
+              var dsec = ((new Date()).getTime() - stat.updated_at.getTime()) / 1000;
+              var cnt = stat.count;
+              if (cnt <= 3){
+                // DO NOTHING
+                // エラーが3回以下ならセーフ
+              }else if (cnt <= 10){
+                // 4-10回なら、1秒待つ
+                if (dsec < 1){
+                  console.log('skip Forward Activity.'
+                  +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
+                  return;
+                }
+              }else if (cnt <= 30){
+                // 11-30回なら、30秒待つ
+                if (dsec < 30){
+                  console.log('skip (lv2) Forward Activity.'
+                  +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
+                  return;
+                }
+              }else if (cnt <= 100){
+                // 31-100回なら、1分待つ
+                if (dsec < 1 * 60){
+                  console.log('skip (lv3) Forward Activity.'
+                  +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
+                  return;
+                }
+              }else{
+                // 101回以上一時エラーで終了してたら、リレーを一度止める
+                // (ただし、今回は許容する)
+                console.log('skip (lv4) Forward Activity.'
+                  +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
+                accountStatus.resetErrorStatus(rows[idx]['id']);
+                // トランザクション外で実行
+                database('accounts')
+                .where({
+                  'id': rows[idx]['id']
+                })
+                .update({
+                  'account_status': 0,
+                  'updated_at': (new Date())
+                }).catch(function(err) {
+                  console.log(err.message);
+                });
+              }
+            }
+
 
             subscriptionMessage
               .sendActivity(rows[idx]['inbox_url'], forwardActivity)
@@ -90,11 +141,12 @@ module.exports = function(job, done) {
                 //+' form='+account['uri']+' to='+rows[idx]['inbox_url']);
       
                 // 成功
+                accountStatus.resetErrorStatus(rows[idx]['id']);
                 // トランザクション外で実行
                 if (rows[idx]['account_status'] != 1){
                   database('accounts')
                   .where({
-                    'inbox_url': rows[idx]['inbox_url']
+                    'id': rows[idx]['id']
                   })
                   .update({
                     'account_status': 1,
@@ -112,7 +164,9 @@ module.exports = function(job, done) {
                 // 配信失敗を結果ログに記録
                 console.log('error Forward Activity.'
                 +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
-  
+
+                accountStatus.setErrorStatus(rows[idx]['id']);
+
                 // 配送不能ドメインのステータスを変更
                 if (err.code == 'ETIMEDOUT') {
                   // タイムアウトはビジー状態として処理
@@ -126,7 +180,7 @@ module.exports = function(job, done) {
                   // トランザクション外で実行
                   database('accounts')
                   .where({
-                    'inbox_url': rows[idx]['inbox_url']
+                    'id': rows[idx]['id']
                   })
                   .update({
                     'account_status': 0,

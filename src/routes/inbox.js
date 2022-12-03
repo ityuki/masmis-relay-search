@@ -4,6 +4,9 @@ var Activity = require('../activitypub/activity');
 
 var Worker = require('../worker')
 
+const jobOptions = {
+  removeOnComplete: true
+}
 
 module.exports = function(req, res, next){
   // ヘッダーの検証
@@ -45,7 +48,7 @@ module.exports = function(req, res, next){
           headers: req.headers,
           body: req.rawBody
         }
-      });
+      },jobOptions);
       break;
 
     case "Undo":
@@ -60,7 +63,7 @@ module.exports = function(req, res, next){
           headers: req.headers,
           body: req.rawBody
         }
-      });
+      },jobOptions);
 
       break;
     
@@ -79,7 +82,7 @@ module.exports = function(req, res, next){
           headers: req.headers,
           body: req.rawBody
         }
-      });
+      },jobOptions);
 
       Worker.noteChangeQueue.add({
         activity:{
@@ -91,7 +94,7 @@ module.exports = function(req, res, next){
           headers: req.headers,
           body: req.rawBody
         }
-      });
+      },jobOptions);
       break;
     
     case "Accept":

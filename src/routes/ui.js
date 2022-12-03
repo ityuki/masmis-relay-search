@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var database = require('../database');
+var accountStatus = require('../cache/relay_status');
 
 function escapeHTML( text )
 {
@@ -39,14 +40,16 @@ router.get('/search_help', function (req, res, next) {
 // リレー情報
 router.get('/relay', function (req, res, next) {
   database.select(
+    'id',
     'domain',
     'account_status'
   )
   .from('accounts')
   .where({account_type:'relay'})
   .orderBy('domain','asc')
-  .then((rows)=>{
-    res.render("ui/relay",{rows:rows})
+  .then(async (rows)=>{
+    var stats = await accountStatus.getAllStatus();
+    res.render("ui/relay",{rows:rows, stats:stats})
   })
 });
 

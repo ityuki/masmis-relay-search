@@ -67,7 +67,12 @@
                 <% for (var row of rows) { %>
                   <tr>
                     <td><%= row['domain'] %></a></td>
-                    <td><%= row['account_status'] == 1 ? "リレー有効" : "停止中" %></td>
+                    <td>
+                      <%= row['account_status'] == 1 ? "リレー有効" : "停止中" %>
+                      <% if (row['account_status'] == 1){ %>
+                        <%- stats[row['id']].last_status == false ? "&nbsp; (最近失敗中)" : "" %>
+                      <% } %>
+                    </td>
                   </tr>
                 <% } %>
               </tbody>

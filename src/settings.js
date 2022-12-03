@@ -17,6 +17,7 @@ module.exports = {
   redis: {
     host: (process.env.REDIS_HOST) ? process.env.REDIS_HOST : "127.0.0.1",
     port: (process.env.REDIS_PORT) ? Number(process.env.REDIS_PORT) : 6379,
+    db: (process.env.REDIS_DB_NUMBER) ? Number(process.env.REDIS_DB_NUMBER) : 0,
     password: ''
   },
 

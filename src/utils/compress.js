@@ -12,7 +12,7 @@ module.exports = {
     return zlib.unzipSync(buffer);
   },
   decomp64 : function(b64){
-    this.decomp(Buffer.from(b64, 'base64'));
+    return this.decomp(Buffer.from(b64, 'base64'));
   }
 };
 

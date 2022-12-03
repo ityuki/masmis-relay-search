@@ -3,7 +3,12 @@ var Queue = require('bull');
 // 設定をロード
 var config = require('./settings');
 
-var redis_config = {redis: config.redis }
+var redis_config = {
+  redis: config.redis,
+  defaultJobOptions:{
+    removeOnComplete: true
+  }
+}
 
 // 各キューを生成
 var follow = new Queue('follow', redis_config);

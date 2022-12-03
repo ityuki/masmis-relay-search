@@ -6,9 +6,6 @@ var accountCache = require('../cache/account');
 
 var config = require('../settings');
 
-const jobOptions = {
-  removeOnComplete: true
-}
 
 //
 //
@@ -48,7 +45,7 @@ module.exports = function(job, done) {
         console.log("undo check.. unfollow")
         Worker.unfollowQueue.add({
           client: client
-        },jobOptions);
+        });
       }else{
         // relay対象と判断
         console.log("undo check.. other")

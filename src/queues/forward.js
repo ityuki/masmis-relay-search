@@ -249,8 +249,10 @@ module.exports = function(job, done) {
         'account_type': 'relay'
       })
       .update({
-        'status': 1
-      })
+        'account_status': 1
+      }).catch(function(err) {
+        console.log(err.message);
+      });
 
       // 
       return Promise.resolve(account);

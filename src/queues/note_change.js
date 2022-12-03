@@ -62,7 +62,7 @@ module.exports = function(job, done) {
           //if (user.length == 0 || ((new Date()).getTime() - (new Date(user['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
           if (user.length == 0 || 
             !user[0]['account_id'] ||
-            !user[0]['display_name'] ||
+            //!user[0]['display_name'] || // display_nameは空許与
             ((new Date()).getTime() - (new Date(user[0]['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
             // upsert
             var newuser = await accountRequest(account['url']);

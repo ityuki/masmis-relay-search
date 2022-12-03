@@ -67,11 +67,11 @@ module.exports = function(job, done) {
       .where({
         'account_type': 'relay',
         'account_status': 1
-      })
-      .orWhere(function () {
-        this.where( 'account_type', 'relay' );
-        this.where( 'account_status', 0 );
-        this.where( 'updated_at', '<', Moment().subtract(1,'hours').toDate() );
+      //})
+      //.orWhere(function () {
+      //  this.where( 'account_type', 'relay' );
+      //  this.where( 'account_status', 0 );
+      //  //this.where( 'updated_at', '<', Moment().subtract(1,'hours').toDate() );
       }).then(async (rows)=>{
         for(idx in rows) {
 
@@ -112,22 +112,24 @@ module.exports = function(job, done) {
                   return;
                 }
               }else{
-                // 101回以上一時エラーで終了してたら、リレーを一度止める
-                // (ただし、今回は許容する)
-                console.log('skip (lv4) Forward Activity.'
+                // 101回以上一時エラーで終了してたら、リレーを1時間止める
+                if (dsec < 1 * 60 * 60){
+                  console.log('skip (lv4) Forward Activity.'
                   +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
-                accountStatus.resetErrorStatus(rows[idx]['id']);
-                // トランザクション外で実行
-                database('accounts')
-                .where({
-                  'id': rows[idx]['id']
-                })
-                .update({
-                  'account_status': 0,
-                  'updated_at': (new Date())
-                }).catch(function(err) {
-                  console.log(err.message);
-                });
+                  return;
+                }
+                //accountStatus.resetErrorStatus(rows[idx]['id']);
+                //// トランザクション外で実行
+                //database('accounts')
+                //.where({
+                //  'id': rows[idx]['id']
+                //})
+                //.update({
+                //  'account_status': 0,
+                //  'updated_at': (new Date())
+                //}).catch(function(err) {
+                //  console.log(err.message);
+                //});
               }
             }
 
@@ -150,7 +152,7 @@ module.exports = function(job, done) {
                   })
                   .update({
                     'account_status': 1,
-                    'updated_at': (new Date())
+                    //'updated_at': (new Date())
                   }).then((rows2)=>{
                     console.log('update server status. ' +rows[idx]['inbox_url']);  
                   }).catch(function(err) {
@@ -175,8 +177,8 @@ module.exports = function(job, done) {
                     && err.response.status >= 500) {
                   // 一時的な配送エラーとして処理
                   return;
-                } else {
-                  // 失敗
+                } else if (err.response.status == 404 || err.response.status == 410) {
+                  // yabai失敗
                   // トランザクション外で実行
                   database('accounts')
                   .where({
@@ -184,10 +186,23 @@ module.exports = function(job, done) {
                   })
                   .update({
                     'account_status': 0,
-                    'updated_at': (new Date())
+                    //'updated_at': (new Date())
                   }).catch(function(err) {
                     console.log(err.message);
                   });
+                } else {
+                  // 失敗
+                  // トランザクション外で実行
+                  //database('accounts')
+                  //.where({
+                  //  'id': rows[idx]['id']
+                  //})
+                  //.update({
+                  //  'account_status': 0,
+                  //  //'updated_at': (new Date())
+                  //}).catch(function(err) {
+                  //  console.log(err.message);
+                  //});
                 }
               });
   

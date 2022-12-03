@@ -24,10 +24,7 @@ perser.prototype.getsym = function(){
     var c = this.cur_str.shift()
     if (in_dq){
       if (c == '"'){
-        if (ident != ""){
-          return ident
-        }
-        continue // ident == ""
+        return ident // ident == "" OK
       }
       ident += c
     }else{
@@ -164,7 +161,6 @@ perser.prototype.build_where = function(){
         case 'language':
           if (nextsym == "NULL"){
             where_str += where_str_next + " notes.language " + (!is_not? "IS ": "IS NOT ") + "NULL"
-            where_param.push(nextsym)
           }else{
             where_str += where_str_next + " notes.language " + (!is_not? "= ": "!= ") + "?"
             where_param.push(nextsym)
@@ -173,7 +169,6 @@ perser.prototype.build_where = function(){
         case 'application_name':
           if (nextsym == "NULL"){
             where_str += where_str_next + " notes.application_name " + (!is_not? "IS ": "IS NOT ") + "NULL"
-            where_param.push(nextsym)
           }else{
             where_str += where_str_next + " notes.application_name " + (!is_not? "= ": "!= ") + "?"
             where_param.push(nextsym)

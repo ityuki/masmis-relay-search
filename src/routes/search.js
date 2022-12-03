@@ -38,6 +38,8 @@ router.get('/', function (req, res, next) {
   var db = null;
   if (sql.search_tag){
     db = database.select(
+      'notes_accounts.domain',
+      'notes_accounts.username',
       'notes_accounts.display_name',
       'notes_accounts.url as account_url',
       'notes_accounts.account_id',
@@ -53,6 +55,8 @@ router.get('/', function (req, res, next) {
     .limit(100).offset(0)
   }else{
     db = database.select(
+      'notes_accounts.domain',
+      'notes_accounts.username',
       'notes_accounts.display_name',
       'notes_accounts.url as account_url',
       'notes_accounts.account_id',

@@ -71,7 +71,7 @@
                   <% var m = (Moment(row['note_created_at'])); %>
                   <% m.utcOffset('+09:00') %>
                   <tr>
-                    <td><a href="<%= row['account_id']? row['account_id'] : row['account_url'] %>" target="_blank" rel="nofollow"><%= row['display_name'] != "" ? row['display_name'] : "(空の名前です)"  %></a></td>
+                    <td><a href="<%= row['account_id']? row['account_id'] : row['account_url'] %>" target="_blank" rel="nofollow"><%= row['display_name'] != "" ? row['display_name'] : row['username']  %></a></td>
                     <td style="word-break: break-all;"><a href="<%= row['url'] %>" target="_blank" rel="nofollow"><%- row['note'] != "" ? escapeHTML(row['note']).replace(/\n/g,'<br>') : "(空の発言です)" %></a></td>
                     <td style="word-break: keep-all;"><%= m.format('YYYY/MM/DD HH:mm:ss') %> JST</td>
                   </tr>

@@ -2,6 +2,7 @@ masmis-search
 ====
 
 * https://github.com/gittrname/activitypub-relay を参考に作っています。
+* https://masmis-search.ja-jp.org/ で動いてます
 
 ## 注意
 

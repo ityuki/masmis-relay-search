@@ -136,14 +136,14 @@ module.exports = function(job, done) {
 
             subscriptionMessage
               .sendActivity(rows[idx]['inbox_url'], forwardActivity)
-              .then(function(res) {
+              .then(async function(res) {
   
                 // 配信成功を結果ログに記録
                 //console.log('success Forward Activity.'
                 //+' form='+account['uri']+' to='+rows[idx]['inbox_url']);
       
                 // 成功
-                accountStatus.resetErrorStatus(rows[idx]['id']);
+                await accountStatus.resetErrorStatus(rows[idx]['id']);
                 // トランザクション外で実行
                 if (rows[idx]['account_status'] != 1){
                   database('accounts')
@@ -160,14 +160,14 @@ module.exports = function(job, done) {
                   });
                 }
               })
-              .catch(function(err) {
+              .catch(async function(err) {
                 console.log(err.message);
   
                 // 配信失敗を結果ログに記録
                 console.log('error Forward Activity.'
                 +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
 
-                accountStatus.setErrorStatus(rows[idx]['id']);
+                await accountStatus.setErrorStatus(rows[idx]['id']);
 
                 // 配送不能ドメインのステータスを変更
                 if (err.code == 'ETIMEDOUT') {
@@ -240,7 +240,7 @@ module.exports = function(job, done) {
       // 
       return Promise.resolve(account);
     })
-    .then(function(account) {
+    .then(async function(account) {
 
       // ドメインの配信状況更新
       database('accounts')
@@ -250,7 +250,14 @@ module.exports = function(job, done) {
       })
       .update({
         'account_status': 1
-      }).catch(function(err) {
+      })
+      .returning('*')
+      .then(async (rows)=>{
+        for(var row of rows){
+          await accountStatus.resetErrorStatus(row['id']);
+        }
+      })
+      .catch(function(err) {
         console.log(err.message);
       });
 

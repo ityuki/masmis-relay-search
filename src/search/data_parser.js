@@ -63,6 +63,9 @@ perser.prototype.like_escape = function(text){
   text = text.replaceAll("_", "\\\\\_")
   return text
 }
+perser.prototype.norm = function(text){
+  return text.normalize('NFKC').toLowerCase()
+}
 perser.prototype.param_boolean = function(text){
   var l = text.toLowerCase()
   return l == "t" || l == "true" || l == "y" || l == "yes" || l == 'on'
@@ -184,16 +187,16 @@ perser.prototype.build_where = function(){
           break;
         default:
           // text search
-          where_str += where_str_next + " notes.note " + (is_not? "NOT ": "") + "like ?"
-          where_param.push("%" + this.like_escape(sym) + ":" + this.like_escape(nextsym) + "%")    
+          where_str += where_str_next + " notes.note_norm " + (is_not? "NOT ": "") + "like ?"
+          where_param.push("%" + this.norm(this.like_escape(sym) + ":" + this.like_escape(nextsym)) + "%")    
       }
       add_not = ""
       is_or = false
       sym = this.getsym()
     }else{
       // text
-      where_str += where_str_next + " notes.note " + (is_not? "NOT ": "") + "like ?"
-      where_param.push("%" + this.like_escape(sym) + "%")
+      where_str += where_str_next + " notes.note_norm " + (is_not? "NOT ": "") + "like ?"
+      where_param.push("%" + this.norm(this.like_escape(sym)) + "%")
       add_not = ""
       is_or = false
       sym = nextsym

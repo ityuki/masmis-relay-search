@@ -127,6 +127,7 @@ module.exports = function(job, done) {
                 account_id: user[0]['id'],
                 url: forwardActivity.object.id,
                 note: nohtml_summary + nonhtml_content,
+                note_norm: (nohtml_summary + nonhtml_content).normalize('NFKC').toLowerCase(),
                 sensitive: forwardActivity.object.sensitive,
                 media_attachments: (forwardActivity.object.attachment && forwardActivity.object.attachment.length > 0)?true:false,
                 language: null,

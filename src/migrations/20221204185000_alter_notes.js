@@ -1,6 +1,6 @@
 'use strict';
 
-exports.up = function(knex, Promise) {
+exports.up = function(knex) {
   return knex.schema.alterTable('notes', function(t) {
     t.text('note_norm');       
   }).then(()=>{
@@ -18,11 +18,12 @@ exports.up = function(knex, Promise) {
       .update({
         note_norm: row['note'].normalize('NFKC').toLowerCase()
       })
-    }  
+    } 
+    return Promise.resolve()
   })
 };
 
-exports.down = function(knex, Promise) {
+exports.down = function(knex) {
   return knex.raw('drop index notes_idx_note_norm')
   .then(()=>{
     return knex.schema.alterTable('notes', function(t) {

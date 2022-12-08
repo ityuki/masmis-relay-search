@@ -34,6 +34,8 @@ module.exports = function(keyId,account_type) {
         })
         .then(function(rows) {
 
+          //console.log(rows)
+
           if (!rows[0]['id']) {
             // DBに登録
             return new Promise((resolve,reject)=>{
@@ -105,9 +107,7 @@ var accountRequest = function(keyId,account_type) {
       if (!res.data.preferredUsername || res.data.preferredUsername == "" ||
           !res.data.id || res.data.id == "" ||
           !res.data.inbox || res.data.inbox == "" ||
-          !res.data.outbox || res.data.outbox == "" ||
-          !res.data.followers || res.data.followers == "" ||
-          !res.data.following || res.data.following == ""){
+          !res.data.outbox || res.data.outbox == ""){
             throw new Error('require data is null or blank');
           }
 

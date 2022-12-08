@@ -157,6 +157,7 @@ module.exports = function(job, done) {
                     console.log('update server status. ' +rows[idx]['inbox_url']);  
                   }).catch(function(err) {
                     console.log(err.message);
+                    Promise.reject(err)
                   });
                 }
               })
@@ -177,7 +178,7 @@ module.exports = function(job, done) {
                     && err.response.status >= 500) {
                   // 一時的な配送エラーとして処理
                   return;
-                } else if (err.response.status == 404 || err.response.status == 410) {
+                } else if (err.response && (err.response.status == 404 || err.response.status == 410)) {
                   // yabai失敗
                   // トランザクション外で実行
                   database('accounts')

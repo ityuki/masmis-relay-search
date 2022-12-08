@@ -11,6 +11,7 @@ var subscription_message = function(actor, privateKey) {
 
   this.headers = {
     'content-type': 'application/activity+json',
+    //'content-type': 'application/json',
     'date': (new Date()).toGMTString()
   };
 };
@@ -36,7 +37,7 @@ subscription_message.prototype.sendActivity = function(inboxUrl, activity){
       body: rawBody,
       data: rawBody
     });
-//  console.log(options);
+  //console.log(options);
   options['url'] = inboxUrl.href;
   options['timeout'] = 30000;
 

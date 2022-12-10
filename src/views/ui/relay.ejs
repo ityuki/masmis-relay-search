@@ -52,7 +52,7 @@
   <section id="relay_result">
     <div class="container">
       <div class="row">
-        <div class="col-lg-8 mx-auto">
+        <div class="col-lg-12 mx-auto">
           <h2>リレー先サーバ一覧</h2>
 
           <div class="table-responsive">
@@ -61,6 +61,7 @@
                 <tr>
                   <th>サーバ名</th>
                   <th>ステータス</th>
+                  <th>登録日</th>
                 </tr>
               </thead>
               <tbody>
@@ -81,6 +82,9 @@
                       <% if (row['account_status'] == 1){ %>
                         <%- stats[row['id']] && stats[row['id']].last_status == false ? (stats[row['id']] && stats[row['id']].count > 100 ? "一時停止中" : "リレー有効　&nbsp; (最近失敗中)") : "リレー有効" %>
                       <% } %>
+                    </td>
+                    <td>
+                      <%= Moment(row['created_at']).utcOffset('+09:00').format('YYYY/MM/DD') %>
                     </td>
                   </tr>
                 <% } %>

@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var database = require('../database');
 var accountStatus = require('../cache/relay_status');
+var Moment = require('moment')
 
 function escapeHTML( text )
 {
@@ -44,15 +45,17 @@ router.get('/relay', function (req, res, next) {
     'domain',
     'account_status',
     'actor_type',
-    'username'
+    'username',
+    'created_at'
   )
   .from('accounts')
   .where({account_type:'relay'})
   .orderBy('domain','asc')
+  .orderBy('actor_type','asc')
   .orderBy('username','asc')
   .then(async (rows)=>{
     var stats = await accountStatus.getAllStatus();
-    res.render("ui/relay",{rows:rows, stats:stats})
+    res.render("ui/relay",{rows:rows, stats:stats,Moment:Moment})
   })
 });
 

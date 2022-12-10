@@ -42,11 +42,14 @@ router.get('/relay', function (req, res, next) {
   database.select(
     'id',
     'domain',
-    'account_status'
+    'account_status',
+    'actor_type',
+    'username'
   )
   .from('accounts')
   .where({account_type:'relay'})
   .orderBy('domain','asc')
+  .orderBy('username','asc')
   .then(async (rows)=>{
     var stats = await accountStatus.getAllStatus();
     res.render("ui/relay",{rows:rows, stats:stats})

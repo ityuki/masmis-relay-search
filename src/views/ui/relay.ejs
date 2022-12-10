@@ -66,7 +66,16 @@
               <tbody>
                 <% for (var row of rows) { %>
                   <tr>
-                    <td><%= row['domain'] %></a></td>
+                    <td>
+                      <% if (row['actor_type'] == 'Person'){ %>
+                        <%= row['domain'] %>
+                        &nbsp; (個人登録 &nbsp;
+                        <%= "*".repeat(row['username'].length) %>@<%= row['domain'] %> 
+                        )
+                      <% }else{ %>
+                        <%= row['domain'] %>
+                      <% } %>
+                    </td>
                     <td>
                       <%= row['account_status'] == 1 ? "" : "停止中" %>
                       <% if (row['account_status'] == 1){ %>

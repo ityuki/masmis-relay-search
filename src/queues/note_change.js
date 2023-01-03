@@ -132,7 +132,8 @@ module.exports = function(job, done) {
                 media_attachments: (forwardActivity.object.attachment && forwardActivity.object.attachment.length > 0)?true:false,
                 language: null,
                 application_name: null,
-                note_created_at: forwardActivity.object.published
+                note_created_at: forwardActivity.object.published,
+                data_json: compress.comp(JSON.stringify(job.data))
               })
               .returning('*')
               .then((note)=>{

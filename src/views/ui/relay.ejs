@@ -19,6 +19,9 @@
 
   <!-- Plugin JavaScript -->
   <script src="/static/jquery-easing/jquery.easing.min.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="/static/datatables/datatables.min.css"/> 
+  <script type="text/javascript" src="/static/datatables/datatables.min.js"></script>
 </head>
 
 <body id="page-top">
@@ -97,9 +100,27 @@
     </div>
   </section>
 
+  <br><br>
+
   <!-- Footer -->
   <%- include('../_footer'); %>
 </div>
+<script>
+$(document).ready(function () {
+  $('#instance-table').DataTable({
+    // 件数切替機能 無効
+    lengthChange: false,
+    // 検索機能 無効
+    searching: false,
+    // ソート機能 無効
+    //ordering: false,
+    // 情報表示 無効
+    info: false,
+    // ページング機能 無効
+    paging: false
+  });
+});
+</script>
 </body>
 
 </html>

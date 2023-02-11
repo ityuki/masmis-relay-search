@@ -11,7 +11,7 @@ var Moment = require('moment')
 
 //
 //
-module.exports = async function(job, done) {
+module.exports = function(job, done) {
 
   //
   var subscriptionMessage = new SubscriptionMessage(config.relay.actor, config.relay.privateKey);
@@ -29,34 +29,28 @@ module.exports = async function(job, done) {
   console.log('start forward queue process. keyId='+signParams['keyId']);
 
   // リクエスト元の公開鍵取得
-  var account = null;
-  try{
-    account = await accountCache(signParams['keyId'],'followers');
-  }catch(e){
-    console.log(e.message);
-    return done(e);
-  }
-  return await new Promise(function(resolve,reject){        
+  accountCache(signParams['keyId'],'followers')
+    .then(function(account) {
+        
       // Signatureの正当性チェック
       if (!Signature.verifyRequest(account['public_key'], client)) {
          //var activity = new Activity(config.relay);
 
-         // 拒否応答
-         subscriptionMessage.sendActivity(
-           account['shared_inbox_url'], activity.reject(signParams['keyId'], client.body));
+         // 拒否応答せず無視
+         // subscriptionMessage.sendActivity(
+         //  account['shared_inbox_url'], activity.reject(signParams['keyId'], client.body));
 
-        return reject(new Error('Invalid signature. keyId='+signParams['keyId']));
+         throw new Error('Invalid signature. keyId='+signParams['keyId']);
       } else {
 
          // アカウントを返却
          return Promise.resolve(account);
       }
     })
+    .then(function(account) {
 
-    .then(async function(account) {
-
-      // トランザクション内で実行
-      await database('accounts')
+      // トランザクション外で実行
+      database('accounts')
       .select([
         'id',
         'domain',
@@ -150,9 +144,9 @@ module.exports = async function(job, done) {
       
                 // 成功
                 await accountStatus.resetErrorStatus(rows[idx]['id']);
-                // トランザクション内で実行
+                // トランザクション外で実行
                 if (rows[idx]['account_status'] != 1){
-                  await database('accounts')
+                  database('accounts')
                   .where({
                     'id': rows[idx]['id']
                   })
@@ -161,7 +155,6 @@ module.exports = async function(job, done) {
                     //'updated_at': (new Date())
                   }).then((rows2)=>{
                     console.log('update server status. ' +rows[idx]['inbox_url']);  
-                    Promise.resolve();
                   }).catch(function(err) {
                     console.log(err.message);
                     Promise.reject(err)
@@ -185,19 +178,16 @@ module.exports = async function(job, done) {
                     && err.response.status >= 500) {
                   // 一時的な配送エラーとして処理
                   return;
-                } else if (err.code == 'ENOTFOUND' || (err.response && (err.response.status == 404 || err.response.status == 410))) {
+                } else if (err.response && (err.response.status == 404 || err.response.status == 410)) {
                   // yabai失敗
-                  // トランザクション内で実行
-                  await database('accounts')
+                  // トランザクション外で実行
+                  database('accounts')
                   .where({
                     'id': rows[idx]['id']
                   })
                   .update({
                     'account_status': 0,
                     //'updated_at': (new Date())
-                  }).then(()=>{
-                    
-                    Promise.resolve();
                   }).catch(function(err) {
                     console.log(err.message);
                   });
@@ -254,7 +244,7 @@ module.exports = async function(job, done) {
     .then(async function(account) {
 
       // ドメインの配信状況更新
-      await database('accounts')
+      database('accounts')
       .where({
         'domain':account['domain'],
         'account_type': 'relay'
@@ -267,11 +257,9 @@ module.exports = async function(job, done) {
         for(var row of rows){
           await accountStatus.resetErrorStatus(row['id']);
         }
-        return Promise.resolve()
       })
       .catch(function(err) {
         console.log(err.message);
-        return Promise.reject(err);
       });
 
       // 

@@ -98,7 +98,7 @@ module.exports = function(req, res, next){
 
     default:
 
-      var error = new Error('Invalid Request Type:' + activity.type);
+      var error = new Error('Invalid Request Type.');
       error.status = 400;
       return next(error);
   }

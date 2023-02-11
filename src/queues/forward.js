@@ -12,6 +12,7 @@ var Moment = require('moment')
 //
 //
 module.exports = async function(job, done) {
+
   //
   var subscriptionMessage = new SubscriptionMessage(config.relay.actor, config.relay.privateKey);
       
@@ -53,6 +54,7 @@ module.exports = async function(job, done) {
     })
 
     .then(async function(account) {
+
       // トランザクション内で実行
       await database('accounts')
       .select([
@@ -80,8 +82,8 @@ module.exports = async function(job, done) {
         for(idx in rows) {
 
           // 単純フォーワード
-          console.log('Forward Activity.'
-          +' form='+account['uri']+' to='+rows[idx]['inbox_url']);
+          //console.log('Forward Activity.'
+          //+' form='+account['uri']+' to='+rows[idx]['inbox_url']);
 
 
           await (async function(rows,idx){

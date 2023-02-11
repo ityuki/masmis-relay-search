@@ -1,4 +1,5 @@
 var axios = require('axios');
+var axios = require('axios');
 
 var Activity = require('../activitypub/activity');
 var Signature = require('../utils/signature');

@@ -51,12 +51,14 @@ module.exports = {
       noteChange: (process.env.QUEUE_POOL_NOTE_CHANGE) ? Number(process.env.QUEUE_POOL_NOTE_CHANGE): 1,
       remoteFollow: (process.env.QUEUE_POOL_REMOTE_FOLLOW) ? Number(process.env.QUEUE_POOL_REMOTE_FOLLOW): 1,
       remoteUnFollow: (process.env.QUEUE_POOL_REMOTE_UNFOLLOW) ? Number(process.env.QUEUE_POOL_REMOTE_UNFOLLOW): 1
-    }
+    },
+    timeout: (process.env.QUEUE_TIMEOUT) ? Number(process.env.QUEUE_TIMEOUT): 5000,
+    auto_unforward: (process.env.AUTO_UNFORWARD) ? Number(process.env.AUTO_UNFORWARD): true
   },
 
   // request cache
   cache: {
-      size:  (process.env.CACHE_SIZE) ? Number(process.env.CACHE_SIZE): 1024,
+      size:  (process.env.CACHE_SIZE) ? Number(process.env.CACHE_SIZE): 2048,
       limit: ((process.env.CACHE_TTL) ? Number(process.env.CACHE_TTL): 10 ) * 60 * 1000
     },
   

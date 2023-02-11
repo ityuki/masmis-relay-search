@@ -1,10 +1,10 @@
-var axios = require('axios');
+//var fetch = require('node-fetch');
 
 var database = require('../database');
 var cache = require('../cache');
 var compress = require('../utils/compress');
 
-module.exports = function(keyId,account_type) {
+module.exports = async function(keyId,account_type) {
 
   return new Promise(function(resolve, reject) {
 
@@ -12,7 +12,7 @@ module.exports = function(keyId,account_type) {
       console.log('has cache. ['+keyId+']');
 
       // キャッシュがあればそれで
-      resolve(cache.get(keyId));
+      return cache.get(keyId);
     } else {
       console.log('no cache. ['+keyId+']');
 
@@ -77,15 +77,14 @@ module.exports = function(keyId,account_type) {
           cache.set(keyId, rows[0]);
 
           // 取得したアカウントをコールバックに返却
-          resolve(rows[0]);
+          return rows[0];
         })
-        .catch(function(err) {
-          reject(err);
-        });
     }
   });
 };
 
+
+var axios = require('axios');
 
 //
 // アカウント情報取得
@@ -98,11 +97,18 @@ var accountRequest = function(keyId,account_type) {
     json: true
   };
 
+  // fetchにするとawait res.jsonしないとエラーになるので、とりあえずaxiosで行く
+  // fetchとaxios混じってて気持ち悪いけど……。
+  // あと、res.request.hostが取れなさそう
+  //return fetch(keyId,options)
   return axios(options)
     .then(function(res) {
 
+      //var data = await res.json();
       //console.log("accountRequest");
+      //console.log(res)
       //console.log(res.data)
+      //console.log(data)
 
       if (!res.data.preferredUsername || res.data.preferredUsername == "" ||
           !res.data.id || res.data.id == "" ||

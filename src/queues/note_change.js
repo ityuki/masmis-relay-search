@@ -258,6 +258,11 @@ module.exports = function(job, done) {
         case "Update":
         case "Announce":
         case "Move":
+          /*
+          console.log("!!THROW!!")
+          console.log("activity_type:" + activity_type)
+          console.log(forwardActivity)
+          *
           return Promise.resolve(user);
         }
     })

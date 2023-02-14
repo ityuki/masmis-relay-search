@@ -60,11 +60,15 @@ router.get('/', function (req, res, next) {
       'notes_accounts.display_name',
       'notes_accounts.url as account_url',
       'notes_accounts.account_id',
+      //'notes_domains.domain_name',
+      //'notes_domains.icon_url',
+      //'notes_domains.background_color',
       'notes.url',
       'notes.note',
       'notes.note_created_at'
     ).from('notes')
     .join('notes_accounts','notes.account_id','=','notes_accounts.id')
+    //.join('notes_domains','notes_accounts.domain_id','=','notes_domains.id')
     .whereRaw(sql.sql,sql.params)
     .orderBy('notes.note_created_at', 'desc')
     .limit(100).offset(0)

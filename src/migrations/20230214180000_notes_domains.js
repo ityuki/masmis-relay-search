@@ -6,7 +6,7 @@ exports.up = function(knex, Promise) {
         return knex.schema.createTable('notes_domains', function(table) {
           table.increments('id').primary();
           table.text('domain');
-          table.text('name');
+          table.text('domain_name');
           table.text('icon_url');
           table.text('background_color');
 

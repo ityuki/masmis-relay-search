@@ -337,7 +337,7 @@ var manifestRequest = async function(domain_name) {
       return [
           {
           'domain': domain_name,
-          'name': name,
+          'domain_name': name,
           'icon_url': icon_url,
           'background_color': background_color
         }
@@ -348,7 +348,7 @@ var manifestRequest = async function(domain_name) {
       return [
         {
         'domain': domain_name,
-        'name': null,
+        'domain_name': null,
         'icon_url': null,
         'background_color': null
       }

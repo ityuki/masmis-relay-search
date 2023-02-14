@@ -9,6 +9,67 @@ var database = require('../database');
 var config = require('../settings');
 const { redis } = require('../settings');
 
+async function db_migration_runner_20230214180000_notes_domains_1(db_domain)
+{
+  var account = [{domain:db_domain['domain']}]
+  console.log(account)
+  var trx = database; // hack
+  // トランザクション外で実行
+  var domain = await database('notes_domains').select()
+  .where({
+    domain: account[0]['domain']
+  });
+  if (false || domain.length == 0 ||
+    ((new Date()).getTime() - (new Date(domain[0]['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
+    var newdomain = await manifestRequest(account[0]['domain']);
+    newdomain[0]['updated_at'] = new Date()
+    // トランザクション内で実行
+    var domain = await trx('notes_domains').select()
+                    .where({
+                      domain: account[0]['domain']
+                    });
+    if (domain.length == 0){
+      // insert
+      console.log("notes_domains domain insert");
+      domain = await trx('notes_domains').insert(newdomain).returning("*");
+    }else{
+      // update
+      console.log("notes_domains domain update");
+      var r = await trx('notes_domains')
+      .update(newdomain[0])
+      .where({
+        domain: account[0]['domain']
+      });
+      newdomain[0]['id'] = domain[0]['id']
+      domain = newdomain
+    }
+  }
+  var domain_id = domain[0]['id'];
+  await database("notes_accounts")
+  .update({'domain_id':domain_id})
+  .where({
+    domain: account[0]['domain']
+  })
+}
+
+var db_migration_runner_20230214180000_notes_domains_1_executed = false;
+
+async function db_migration_runner_20230214180000_notes_domains_2()
+{
+  return;
+  if (db_migration_runner_20230214180000_notes_domains_1_executed) return;
+  db_migration_runner_20230214180000_notes_domains_1_executed = true;
+  console.log("updating...")
+  var domains = await database("notes_accounts").select(['domain']).whereRaw("domain_id is null").groupBy('domain')
+  var cnt = 0
+  for (var domain of domains){
+    await db_migration_runner_20230214180000_notes_domains_1(domain).catch((e)=>{console.log(e)});
+    console.log("updated... " + (cnt+1) + "/" + domains.length)
+    cnt += 1
+  }
+  console.log("updating...done!")
+}
+
 //
 //
 module.exports = function(job, done) {
@@ -26,6 +87,7 @@ module.exports = function(job, done) {
 
   console.log('start note_change queue process. keyId='+signParams['keyId'] + " activity_type=" + activity_type);
   //console.log(forwardActivity)
+
 
   // リクエスト元の公開鍵取得
   accountCache(signParams['keyId'],'followers')
@@ -51,7 +113,10 @@ module.exports = function(job, done) {
       // アカウント情報確認・追加
       // タグ登録も
       return new Promise((resolve,reject)=>{
+
         database.transaction(async trx=>{
+          // migration後に１回だけ実行するよう
+          await db_migration_runner_20230214180000_notes_domains_2()
           // ユーザ確認
           console.log("notes_accounts verification url=" + account['url']);
           // トランザクション外で実行
@@ -69,6 +134,10 @@ module.exports = function(job, done) {
             // upsert
             // domain update含む
             var newuser = await accountRequestAddDomain(account['url'],trx);
+            if (newuser == null){
+              reject();
+              return;
+            }
             newuser[0]['updated_at'] = new Date()
             // トランザクション内で実行
             var user = await trx('notes_accounts').select()
@@ -83,7 +152,7 @@ module.exports = function(job, done) {
               // update
               console.log("notes_accounts user update");
               var r = await trx('notes_accounts')
-              .update(newuser[0],Object.keys(newuser[0]))
+              .update(newuser[0])
               .where({
                 id: user[0]['id']
               });
@@ -205,6 +274,7 @@ module.exports = function(job, done) {
 
 var accountRequestAddDomain = async function(keyId,trx) {
   var account = await accountRequest(keyId);
+  if (account == null) return null;
   // トランザクション外で実行
   var domain = await database('notes_domains').select()
   .where({
@@ -227,9 +297,9 @@ var accountRequestAddDomain = async function(keyId,trx) {
       // update
       console.log("notes_domains domain update");
       var r = await trx('notes_domains')
-      .update(newdomain[0],Object.keys(newdomain[0]))
+      .update(newdomain[0])
       .where({
-        domain: account['domain']
+        domain: account[0]['domain']
       });
       newdomain[0]['id'] = domain[0]['id']
       domain = newdomain
@@ -278,7 +348,7 @@ var accountRequest = async function(keyId) {
       ];
     })
     .catch(function(err) {
-      return err;
+      return null;
     });
 };
 

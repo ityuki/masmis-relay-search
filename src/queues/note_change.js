@@ -262,7 +262,7 @@ module.exports = function(job, done) {
           console.log("!!THROW!!")
           console.log("activity_type:" + activity_type)
           console.log(forwardActivity)
-          *
+          */
           return Promise.resolve(user);
         }
     })

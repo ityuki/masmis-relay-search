@@ -54,19 +54,27 @@ module.exports = function(job, done) {
         database.transaction(async trx=>{
           // ユーザ確認
           console.log("notes_accounts verification url=" + account['url']);
-          var user = await trx('notes_accounts').select()
+          // トランザクション外で実行
+          var user = await database('notes_accounts').select()
                           .where({
                             url: account['url']
                           });
           // ユーザ登録
           //if (user.length == 0 || ((new Date()).getTime() - (new Date(user['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
-          if (user.length == 0 || 
+          if (false || user.length == 0 || 
             !user[0]['account_id'] ||
+            !user[0]['domain_id'] ||
             //!user[0]['display_name'] || // display_nameは空許与
             ((new Date()).getTime() - (new Date(user[0]['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
             // upsert
-            var newuser = await accountRequest(account['url']);
+            // domain update含む
+            var newuser = await accountRequestAddDomain(account['url'],trx);
             newuser[0]['updated_at'] = new Date()
+            // トランザクション内で実行
+            var user = await trx('notes_accounts').select()
+                            .where({
+                              url: account['url']
+                            });
             if (user.length == 0){
               // insert
               console.log("notes_accounts user insert");
@@ -195,6 +203,42 @@ module.exports = function(job, done) {
     });
 };
 
+var accountRequestAddDomain = async function(keyId,trx) {
+  var account = await accountRequest(keyId);
+  // トランザクション外で実行
+  var domain = await database('notes_domains').select()
+  .where({
+    domain: account[0]['domain']
+  });
+  if (false || domain.length == 0 ||
+    ((new Date()).getTime() - (new Date(domain[0]['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
+    var newdomain = await manifestRequest(account[0]['domain']);
+    newdomain[0]['updated_at'] = new Date()
+    // トランザクション内で実行
+    var domain = await trx('notes_domains').select()
+                    .where({
+                      domain: account[0]['domain']
+                    });
+    if (domain.length == 0){
+      // insert
+      console.log("notes_domains domain insert");
+      domain = await trx('notes_domains').insert(newdomain).returning("*");
+    }else{
+      // update
+      console.log("notes_domains domain update");
+      var r = await trx('notes_domains')
+      .update(newdomain[0],Object.keys(newdomain[0]))
+      .where({
+        domain: account['domain']
+      });
+      newdomain[0]['id'] = domain[0]['id']
+      domain = newdomain
+    }
+  }
+  account[0]['domain_id'] = domain[0]['id']
+  return account;
+}
+
 // アカウント情報取得
 var accountRequest = async function(keyId) {
 
@@ -227,6 +271,7 @@ var accountRequest = async function(keyId) {
           'bot': (!res.data.bot || res.data.bot == false) ? false : true,
 
           'account_id': res.data.id,
+          'account_url': res.data.url,
 
           'url': keyId
         }
@@ -236,4 +281,79 @@ var accountRequest = async function(keyId) {
       return err;
     });
 };
+
+var manifestRequest = async function(domain_name) {
+  var options = {
+    url: "https://" + domain_name + "/manifest.json",
+    method: 'GET',
+    headers: {'Accept': 'application/json'},
+    json: true
+  };
+
+  return axios(options)
+    .then(function(res) {
+
+      //console.log("manifestRequest");
+      //console.log(res.data)
+      var name = res.data.name;
+      if (res.data.short_name && res.data.short_name != ""){
+        name = res.data.short_name;
+      }
+      var icon_url = null;
+      if (res.data.icons){
+        var size = null;
+        for(var icon of res.data.icons){
+          if (!icon || !icon.src || icon.src == "") continue;
+          var icon_src = icon.src;
+          if (icon_src.startsWith("https://" + domain_name + "/")){
+            // DO NOTHING
+          }else if(icon_src.startsWith("/")){
+            icon_src = "https://" + domain_name + icon_src;
+          }else{
+            continue;
+          }
+          if (icon_url == null) icon_url = icon_src;
+          if (!icon.sizes) continue;
+          var sz = icon.sizes.split("x");
+          if (sz.length != 2) continue;
+          if (size == null){
+            size = sz;
+            icon_url = icon_src;
+          }
+          if (size[0] > sz[0] || size[1] > sz[1]){
+            size = sz;
+            icon_url = icon_src;
+          }
+        }
+      }
+      var background_color = null;
+      if (res.data.background_color){
+        if (res.data.background_color.search(/^\#[0-9A-Fa-f]{6}$/) == 0){
+          background_color = res.data.background_color;          
+        }
+      }
+
+      // レコード作成
+      return [
+          {
+          'domain': domain_name,
+          'name': name,
+          'icon_url': icon_url,
+          'background_color': background_color
+        }
+      ];
+    })
+    .catch(function(err) {
+      // return err;
+      return [
+        {
+        'domain': domain_name,
+        'name': null,
+        'icon_url': null,
+        'background_color': null
+      }
+    ];
+  });
+}
+
 

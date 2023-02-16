@@ -86,13 +86,13 @@
               <div class="row">
                 <div class="col-lg-9 mx-auto"  style="background: linear-gradient(90deg, rgb(<%= getRGB(row['background_color'],'r') %>, <%= getRGB(row['background_color'],'g') %>, <%= getRGB(row['background_color'],'b') %>), rgba(<%= getRGB(row['background_color'],'r') %>, <%= getRGB(row['background_color'],'g') %>, <%= getRGB(row['background_color'],'b') %>, 0));">
                   &nbsp;
-                  <a href="<%= row['account_url']? row['account_url'] : row['account_id'] %>" target="_blank" rel="nofollow" class="username"><%= row['display_name'] != "" ? row['display_name'].substring(0,40) : row['username']  %></a>
+                  <a href="<%= row['account_url']? row['account_url'] : row['account_id'] %>" target="_blank" rel="nofollow" class="username"><%= (row['display_name'] != null && row['display_name'] != "") ? row['display_name'].substring(0,40) : row['username']  %></a>
                   &nbsp;
                   <span class="name">
                     @<%= row['username']  %>@<%= row['domain']  %>
                     (
                       <img width="16" height="16" src="<%= row['icon_url'] %>">
-                      <a href="https://<%= row['domain'] %>/" target="_blank" rel="nofollow" class="name"><%= row['domain_name'].substring(0,15) %></a>
+                      <a href="https://<%= row['domain'] %>/" target="_blank" rel="nofollow" class="name"><%= row['domain_name'] != null ? row['domain_name'].substring(0,15) : "" %></a>
                     )
                   </span>
                 </div>

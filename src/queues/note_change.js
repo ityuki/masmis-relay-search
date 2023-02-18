@@ -3,6 +3,7 @@ var axios = require('axios');
 var Activity = require('../activitypub/activity');
 var Signature = require('../utils/signature');
 var compress = require('../utils/compress');
+var rev_domain = require('../utils/rev_domain');
 
 var accountCache = require('../cache/account');
 var database = require('../database');
@@ -288,6 +289,7 @@ var accountRequestAddDomain = async function(keyId,trx) {
   if (false || domain.length == 0 ||
     ((new Date()).getTime() - (new Date(domain[0]['updated_at'])).getTime()) > 7 * 24 * 60 * 60 * 1000){ // 7day
     var newdomain = await manifestRequest(account[0]['domain']);
+    newdomain[0]['rev_domain'] = rev_domain.build(newdomain[0]['domain']);
     newdomain[0]['updated_at'] = new Date()
     // トランザクション内で実行
     var domain = await trx('notes_domains').select()

@@ -123,6 +123,10 @@ perser.prototype.build_where = function(){
           where_str += where_str_next + " notes_accounts.domain " + (!is_not? "": "NOT ") + "like ?"
           where_param.push(this.like_escape(nextsym) + "%")
           break;
+        case 'account.domain.rev':
+          where_str += where_str_next + " notes_domains.rev_domain " + (!is_not? "": "NOT ") + "like ?"
+          where_param.push(this.like_escape(nextsym) + "%")
+          break;
         case 'account.username':
           where_str += where_str_next + " notes_accounts.username " + (!is_not? "= ": "!= ") + "?"
           where_param.push(nextsym)

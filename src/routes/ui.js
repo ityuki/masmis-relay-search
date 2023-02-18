@@ -38,6 +38,11 @@ router.get('/search_help', function (req, res, next) {
   res.render("ui/search_help")
 });
 
+// 詳細検索
+router.get('/search_advanced', function (req, res, next) {
+  res.render("ui/search_advanced")
+});
+
 // リレー情報
 router.get('/relay', function (req, res, next) {
   database.select(

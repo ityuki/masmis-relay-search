@@ -124,8 +124,18 @@ perser.prototype.build_where = function(){
           where_param.push(this.like_escape(nextsym) + "%")
           break;
         case 'account.domain.rev':
-          where_str += where_str_next + " notes_domains.rev_domain " + (!is_not? "": "NOT ") + "like ?"
-          where_param.push(this.like_escape(nextsym) + "%")
+          if (nextsym.endsWith(".")){
+            where_str += " ( "
+            where_str += where_str_next + " notes_domains.rev_domain " + (!is_not? "= ": "!= ") + "?"
+            where_param.push(nextsym.slice( 0, -1 ))
+            where_str += " OR "
+            where_str += where_str_next + " notes_domains.rev_domain " + (!is_not? "": "NOT ") + "like ?"
+            where_param.push(this.like_escape(nextsym) + "%")
+            where_str += " ) "
+          }else{
+            where_str += where_str_next + " notes_domains.rev_domain " + (!is_not? "": "NOT ") + "like ?"
+            where_param.push(this.like_escape(nextsym) + "%")
+          }
           break;
         case 'account.username':
           where_str += where_str_next + " notes_accounts.username " + (!is_not? "= ": "!= ") + "?"

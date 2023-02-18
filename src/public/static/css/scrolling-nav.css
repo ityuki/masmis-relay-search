@@ -17,7 +17,7 @@ section {
 .footerFixed{
   min-height: 100vh; /* ←コンテンツの高さの最小値＝ブラウザの高さに指定 */
   position: relative;/* ←相対位置 */
-  padding-bottom: 190px; /* ←フッターの高さを指定 */
+  padding-bottom: 220px; /* ←フッターの高さを指定 */
   box-sizing: border-box;
   /* ↑ヘッダーやフッターを含むすべての要素の高さ＝min-height:100vhになるように指定 */
 }

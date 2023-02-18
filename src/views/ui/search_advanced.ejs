@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="jp">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ますみすサーチ</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/css/scrolling-nav.css" rel="stylesheet">
+  <!-- Bootstrap core JavaScript -->
+  <script src="/static/jquery/jquery.min.js"></script>
+  <script src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Plugin JavaScript -->
+  <script src="/static/jquery-easing/jquery.easing.min.js"></script>
+<script>
+  function str_split(str){
+    return str.split(/\s/);
+  }
+  function rev_domain(domain){
+    return domain.split(".").reverse().join(".");
+  }
+  function search(){
+    var kw = "";
+    if ($("#keyword_and").val() != ""){
+      var k = str_split($("#keyword_and").val()).join(" ");
+      if (k != "") kw += k + " ";
+    }
+    if ($("#keyword_or").val() != ""){
+      var k = str_split($("#keyword_or").val()).join(" OR ");
+      if (k != "") kw += "OR " + k + " ";
+    }
+    if ($("#keyword_not").val() != ""){
+      var k = str_split($("#keyword_not").val()).join(" -");
+      if (k != "") kw += "-" + k + " ";
+    }
+    if ($("#start_date").val() != ""){
+      var k = $("#start_date").val();
+      if (k != "") kw += "start_at:" + k + " ";
+    }
+    if ($("#end_date").val() != ""){
+      var k = $("#end_date").val();
+      if (k != "") kw += "end_at:" + k + " ";
+    }
+    if ($("#keyword_domain").val() != ""){
+      var k = $("#keyword_domain").val();
+      if (k.startsWith(".")){
+        k = rev_domain(k);
+        if (k != "") kw += "account.domain.rev:" + k + " ";
+      }else{
+        if (k.startsWith("https://")) k = k.substring("https://".length)
+        k = k.split("/").shift()
+        if (k != "") kw += "account.domain:" + k + " ";
+      }
+    }
+    if ($("#keyword_user").val() != ""){
+      var k = $("#keyword_user").val();
+      if (k.startsWith("@")){
+        if (k != "") kw += "account.username:" + k.substring(1) + " ";
+      }else{
+        if (k != "") kw += "account.display_name:" + k + " ";
+      }
+    }
+    if ($("#no_bot").prop('checked')){
+      kw += "account.bot:false ";
+    }
+    if ($("#include_sensitive").prop('checked')){
+      kw += "sensitive:true ";
+    }
+    if ($("#has_media").prop('checked')){
+      kw += "has_media:true ";
+    }
+    kw = kw.trim();
+    if (kw != ""){
+      location = "/search?q=" + encodeURI(kw);
+    }else{
+      alert("何も入力されていません！");
+      $('#keyword_and').focus()
+    }
+  }
+</script>
+</head>
+
+<body id="page-top">
+  <div class="footerFixed">
+  <!-- Footer -->
+  <%- include('../_header'); %>
+
+  <header class="bg-secondary text-white">
+    <div class="container text-center">
+      <h1>ますみすサーチ 詳細検索</h1>
+    </div>
+  </header>
+
+  <section id="search_result">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12 mx-auto">
+          <b>検索するキーワード</b>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-3 mx-auto">
+          全てのキーワードを含む
+        </div>
+        <div class="col-lg-5 mx-auto">
+          <input type="text" id="keyword_and" style="width: 100%;" onkeydown="((ev)=>{if (ev.key === 'Enter') {$('#keyword_or').focus()}})(arguments[0])">
+        </div>
+        <div class="col-lg-4 mx-auto">
+          キーワードを半角または全角スペースで区切って入力します。例えば「にゃーん」
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-3 mx-auto">
+          いずれかのキーワードを含む
+        </div>
+        <div class="col-lg-5 mx-auto">
+          <input type="text" id="keyword_or" style="width: 100%;" onkeydown="((ev)=>{if (ev.key === 'Enter') {$('#keyword_not').focus()}})(arguments[0])">
+        </div>
+        <div class="col-lg-4 mx-auto">
+          キーワードを半角または全角スペースで区切って入力します。例えば「にゃーん」
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-3 mx-auto">
+          含めないキーワード
+        </div>
+        <div class="col-lg-5 mx-auto">
+          <input type="text" id="keyword_not" style="width: 100%;" onkeydown="((ev)=>{if (ev.key === 'Enter') {$('#start_date').focus()}})(arguments[0])">
+        </div>
+        <div class="col-lg-4 mx-auto">
+          キーワードを半角または全角スペースで区切って入力します。例えば「猫」
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12 mx-auto">
+          <br>
+          <br>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12 mx-auto">
+          <b>検索結果の絞り込み</b>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-3 mx-auto">
+          発言日時
+        </div>
+        <div class="col-lg-5 mx-auto">
+          <input type="date" id="start_date" onkeydown="((ev)=>{if (ev.key === 'Enter') {$('#end_date').focus()}})(arguments[0])">
+          ～
+          <input type="date" id="end_date" onkeydown="((ev)=>{if (ev.key === 'Enter') {$('#keyword_domain').focus()}})(arguments[0])">
+        </div>
+        <div class="col-lg-4 mx-auto">
+          指定した期間に限定して検索します。入力しない場合は全期間をさします。
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-3 mx-auto">
+          サイトまたはドメイン
+        </div>
+        <div class="col-lg-5 mx-auto">
+          <input type="text" id="keyword_domain" style="width: 100%;" onkeydown="((ev)=>{if (ev.key === 'Enter') {$('#keyword_user').focus()}})(arguments[0])">
+        </div>
+        <div class="col-lg-4 mx-auto">
+          検索対象のドメインを入力します。.で始めた場合は、そのドメインを含むドメインに限定します。例えば「.ja-jp.org」
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-3 mx-auto">
+          ユーザ名
+        </div>
+        <div class="col-lg-5 mx-auto">
+          <input type="text" id="keyword_user" style="width: 100%;" onkeydown="((ev)=>{if (ev.key === 'Enter') {$('#no_bot').focus()}})(arguments[0])">
+        </div>
+        <div class="col-lg-4 mx-auto">
+          検索対象のユーザ名を入力します。@で始めた場合は、ユーザIDで検索します。例えば「@ityuki」「いつき」
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12 mx-auto">
+          <input type="checkbox" id="no_bot" onkeydown="((ev)=>{if (ev.key === 'Enter') {$('#include_sensitive').focus()}})(arguments[0])">BOTを除外する場合はチェックします
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12 mx-auto">
+          <input type="checkbox" id="include_sensitive" onkeydown="((ev)=>{if (ev.key === 'Enter') {$('#has_media').focus()}})(arguments[0])">センシティブ発言を含める場合はチェックします
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12 mx-auto">
+          <input type="checkbox" id="has_media" onkeydown="((ev)=>{if (ev.key === 'Enter') {$('#submit_search').focus()}})(arguments[0])">メディアが添付された発言に限定する場合はチェックします
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12 mx-auto text-right">
+          <input type="button" class="btn btn-primary" value="詳細検索" id="submit_search" onclick="search()" onkeydown="((ev)=>{if (ev.key === 'Enter') {search()}})(arguments[0])">
+          <br>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    $('#keyword_and').focus();
+  </script>
+
+  <!-- Footer -->
+  <%- include('../_footer'); %>
+</div>
+</body>
+
+</html>

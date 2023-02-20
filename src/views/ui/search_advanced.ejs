@@ -5,20 +5,13 @@
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <meta name="author" content="">
+  <meta name="description" content="ますみすサーチ - 詳細検索">
 
   <title>ますみすサーチ</title>
 
-  <!-- Bootstrap core CSS -->
-  <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/static/css/scrolling-nav.css" rel="stylesheet">
-  <!-- Bootstrap core JavaScript -->
-  <script src="/static/jquery/jquery.min.js"></script>
-  <script src="/static/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- header -->
+  <%- include('../_header'); %>
 
-  <!-- Plugin JavaScript -->
-  <script src="/static/jquery-easing/jquery.easing.min.js"></script>
 <script>
   function str_split(str){
     return str.split(/\s/);
@@ -89,8 +82,8 @@
 
 <body id="page-top">
   <div class="footerFixed">
-  <!-- Footer -->
-  <%- include('../_header'); %>
+  <!-- Navi -->
+  <%- include('../_navigation'); %>
 
   <header class="bg-secondary text-white">
     <div class="container text-center">

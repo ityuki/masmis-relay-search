@@ -1,7 +1,6 @@
 build
 node_modules
 tmp
-package-lock.json
 .env.development
 .env.production
 private.pem

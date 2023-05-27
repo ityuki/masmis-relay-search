@@ -13,6 +13,7 @@ Actor.prototype.myself = function(pubKey) {
       'https://w3id.org/security/v1'
     ],
     'id':                this.relay.actor,
+    'name':              this.relay.name,
     'type':              'Service',
     'preferredUsername': 'relay',
     'inbox':             this.relay.url+'/inbox',

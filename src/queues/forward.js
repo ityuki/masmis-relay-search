@@ -27,6 +27,17 @@ module.exports = function(job, done) {
   var boastActivity = activity.announce(client.body);
 
   console.log('start forward queue process. keyId='+signParams['keyId']);
+  // public messageに限定
+  var public_message = false;
+  for(var to of forwardActivity.object.to){
+    if (to == 'https://www.w3.org/ns/activitystreams#Public'){
+      public_message = true;
+    }
+  }
+  if (!public_message){
+    console.log('no PUBLIC, no forward queue process. keyId='+signParams['keyId']);
+    return done();
+  }
 
   // リクエスト元の公開鍵取得
   accountCache(signParams['keyId'],'followers')

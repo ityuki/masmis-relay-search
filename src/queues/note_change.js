@@ -185,6 +185,7 @@ module.exports = function(job, done) {
       switch(activity_type){
         case "Create":
           // notesに追加
+          //console.log(forwardActivity)
           if (forwardActivity.object.type == "Note"){
             // public messageに限定
             var public_message = false;

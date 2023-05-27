@@ -11,6 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.27.2",
+    "bcrypt": "^5.1.0",
     "body-parser": "^1.18.3",
     "bull": "^4.10.2",
     "crypto": "^1.0.1",

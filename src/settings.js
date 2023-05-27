@@ -10,6 +10,7 @@ module.exports = {
     actor: relayUrl.href+'actor',
     keyId: relayUrl.href+'actor#main-key',
     account: 'acct:relay@'+relayUrl.host,
+    host: relayUrl.host,
     name: (process.env.RELAY_NAME) ? process.env.RELAY_NAME : "relay",
     privateKey: (process.env.PRIVATE_KEY) ? process.env.PRIVATE_KEY : "not private key.",
     publicKey: (process.env.PUBLIC_KEY) ? process.env.PUBLIC_KEY : "not public key."

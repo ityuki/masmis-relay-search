@@ -1,4 +1,5 @@
 var axios = require('axios');
+var bcrypt = require('bcrypt')
 
 var Activity = require('../activitypub/activity');
 var Signature = require('../utils/signature');
@@ -181,13 +182,67 @@ module.exports = function(job, done) {
         .catch((e)=>{reject(e);})
       })
     })
+    .then(async function(user) {
+      switch(activity_type){
+        case "Create":
+          // コントロール追加
+          //console.log(forwardActivity)
+          if (forwardActivity.object.type == "Note"){
+            // control command
+            var controll_message = false;
+            for(var to of forwardActivity.object.to){
+              if (to == 'https://' + config.relay.host + '/actor'){
+                controll_message = true;
+              }
+            }
+            if (controll_message){
+              //console.log(forwardActivity)
+              var nonhtml_content = forwardActivity.object.content.replace(/\<br\>/g,"\n").replace(/\<.*?\>/g,'')
+              var commands = nonhtml_content.split(/\s+/)
+              if (commands.length >= 2 && commands[0] == "control"){
+                // check user role
+                var ret_user = null;
+                if (forwardActivity.object._misskey_content !== undefined){
+                  // misskey
+                  ret_user = await misskey_accountRequest(forwardActivity.actor);
+                }
+                if (ret_user != null){
+                  // run command
+                  var login_id = ret_user.username + "@" + ret_user.host;
+                  await database.transaction(async trx=>{
+                    await trx("relay_login_accounts").delete().whereRaw("created_at + cast( '60 minutes' as INTERVAL ) < NOW()");
+                  });
+                  if (commands[1] == 'set-password' && commands.length >= 3 && commands[2].length >= 8){
+                    // set password
+                    await database.transaction(async trx=>{
+                      await trx("relay_login_accounts").delete().where({login_id:login_id});
+                      await trx("relay_login_accounts").insert({
+                        login_id:login_id,
+                        login_pass_salted: await bcrypt.hash(commands[2],10)
+                      })
+                    })
+                    console.log("relay_password set " + login_id)
+                  }else if (commands[1] == 'delete-password'){
+                    // delete password
+                    await database.transaction(async trx=>{
+                      await trx("relay_login_accounts").delete().where({login_id:login_id});
+                    })
+                    console.log("relay_password delete " + login_id)
+                  }
+                }
+              }
+            }
+          }
+        }
+      return user;
+    })
     .then(function(user) {
       switch(activity_type){
         case "Create":
           // notesに追加
           //console.log(forwardActivity)
           if (forwardActivity.object.type == "Note"){
-            // public messageに限定
+            // 記録はpublic messageに限定
             var public_message = false;
             for(var to of forwardActivity.object.to){
               if (to == 'https://www.w3.org/ns/activitystreams#Public'){
@@ -435,3 +490,52 @@ var manifestRequest = async function(domain_name) {
 }
 
 
+// アカウント情報取得
+var misskey_accountRequest = async function(id) {
+
+  var rid = id.split("/").pop();
+  var host = id.split("/")[2];
+
+  var options = {
+    url: "https://" + host + "/api/users/show",
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    data: JSON.stringify({userId: rid, userIds: [rid],  username: '', host: host}),
+    json: true
+  };
+  //console.log(options)
+
+  return axios(options)
+    .then(function(res) {
+
+      //console.log("misskey_accountRequest");
+      //console.log(res.data)
+
+      if (!res.data instanceof Array || res.data.length != 1 || 
+          res.data[0].id == "" || res.data[0].username == "" ||
+          !res.data[0].roles instanceof Array ){
+            throw new Error('require data is null or blank');
+          }
+      var has_key = false;
+      //console.log(res.data[0].roles)
+      for(var i=0;i<res.data[0].roles.length;i++){
+        //console.log(res.data[0].roles[i] )
+        if (res.data[0].roles[i].name == "admin@" + config.relay.host){
+          has_key = true;
+          break;
+        }
+      }
+      if (!has_key){
+        return null;
+      }
+
+      return {
+          'id': res.data[0].id,
+          'username': res.data[0].username,
+          'host': host
+        };
+    })
+    .catch(function(err) {
+      return null;
+    });
+};

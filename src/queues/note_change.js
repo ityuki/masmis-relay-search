@@ -210,7 +210,7 @@ module.exports = function(job, done) {
                   // run command
                   var login_id = ret_user.username + "@" + ret_user.host;
                   await database.transaction(async trx=>{
-                    await trx("relay_login_accounts").delete().whereRaw("created_at + cast( '60 minutes' as INTERVAL ) < NOW()");
+                    await trx("relay_login_accounts").delete().whereRaw("created_at + cast( '10 minutes' as INTERVAL ) < NOW()");
                   });
                   if (commands[1] == 'set-password' && commands.length >= 3 && commands[2].length >= 8){
                     // set password
@@ -229,6 +229,9 @@ module.exports = function(job, done) {
                     })
                     console.log("relay_password delete " + login_id)
                   }
+                }else{
+                  console.log("WARNING!! non-admin send control command!!")
+                  console.log(forwardActivity)
                 }
               }
             }
@@ -506,27 +509,32 @@ var misskey_accountRequest = async function(id) {
   //console.log(options)
 
   return axios(options)
-    .then(function(res) {
+    .then(async function(res) {
 
       //console.log("misskey_accountRequest");
       //console.log(res.data)
 
       if (!res.data instanceof Array || res.data.length != 1 || 
-          res.data[0].id == "" || res.data[0].username == "" ||
-          !res.data[0].roles instanceof Array ){
+          res.data[0].id == "" || res.data[0].username == "" ){
             throw new Error('require data is null or blank');
           }
       var has_key = false;
       //console.log(res.data[0].roles)
-      for(var i=0;i<res.data[0].roles.length;i++){
-        //console.log(res.data[0].roles[i] )
-        if (res.data[0].roles[i].name == "admin@" + config.relay.host){
-          has_key = true;
-          break;
-        }
+      if (res.data[0].roles instanceof Array){
+        for(var i=0;i<res.data[0].roles.length;i++){
+          //console.log(res.data[0].roles[i] )
+          if (res.data[0].roles[i].name == "admin@" + config.relay.host){
+            has_key = true;
+            break;
+          }
+        }  
       }
       if (!has_key){
-        return null;
+        console.log(res.data[0].username+"@"+host)
+        var rows = await database('relay_login_admins').select().where({login_id:res.data[0].username+"@"+host})
+        if (rows.length == 0){
+          return null;
+        }
       }
 
       return {

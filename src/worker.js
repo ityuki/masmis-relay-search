@@ -6,7 +6,8 @@ var config = require('./settings');
 var redis_config = {
   redis: config.redis,
   defaultJobOptions:{
-    removeOnComplete: true
+    removeOnComplete: true,
+    removeOnFail: true
   }
 }
 
